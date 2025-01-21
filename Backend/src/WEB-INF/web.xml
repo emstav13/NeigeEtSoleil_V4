@@ -1,0 +1,10 @@
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="4.0">
+    <servlet>
+        <servlet-name>InscriptionServlet</servlet-name>
+        <servlet-class>controleur.InscriptionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>InscriptionServlet</servlet-name>
+        <url-pattern>/inscription</url-pattern>
+    </servlet-mapping>
+</web-app>
