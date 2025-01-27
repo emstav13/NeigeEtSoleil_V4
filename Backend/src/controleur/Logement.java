@@ -2,6 +2,7 @@ package controleur;
 
 public class Logement {
     private int idLogement;
+    private int idProprietaire;
     private String nomImmeuble;
     private String adresse;
     private String codePostal;
@@ -10,11 +11,13 @@ public class Logement {
     private float surfaceHabitable;
     private int capaciteAccueil;
     private String specifite;
+    private String photo; // Nouveau champ
 
-    // Constructeur avec ID
-    public Logement(int idLogement, String nomImmeuble, String adresse, String codePostal, String ville, 
-                    String typeLogement, float surfaceHabitable, int capaciteAccueil, String specifite) {
+    // Constructeur avec ID du propriétaire
+    public Logement(int idLogement, int idProprietaire, String nomImmeuble, String adresse, String codePostal, String ville,
+                    String typeLogement, float surfaceHabitable, int capaciteAccueil, String specifite, String photo) {
         this.idLogement = idLogement;
+        this.idProprietaire = idProprietaire;
         this.nomImmeuble = nomImmeuble;
         this.adresse = adresse;
         this.codePostal = codePostal;
@@ -23,12 +26,14 @@ public class Logement {
         this.surfaceHabitable = surfaceHabitable;
         this.capaciteAccueil = capaciteAccueil;
         this.specifite = specifite;
+        this.photo = photo;
     }
 
     // Constructeur sans ID (pour insertion)
-    public Logement(String nomImmeuble, String adresse, String codePostal, String ville, 
-                    String typeLogement, float surfaceHabitable, int capaciteAccueil, String specifite) {
-        this.idLogement = 0; // Par défaut pour les nouvelles insertions
+    public Logement(int idProprietaire, String nomImmeuble, String adresse, String codePostal, String ville,
+                    String typeLogement, float surfaceHabitable, int capaciteAccueil, String specifite, String photo) {
+        this.idLogement = 0;
+        this.idProprietaire = idProprietaire;
         this.nomImmeuble = nomImmeuble;
         this.adresse = adresse;
         this.codePostal = codePostal;
@@ -37,6 +42,7 @@ public class Logement {
         this.surfaceHabitable = surfaceHabitable;
         this.capaciteAccueil = capaciteAccueil;
         this.specifite = specifite;
+        this.photo = photo;
     }
 
     // Getters et Setters
@@ -46,6 +52,14 @@ public class Logement {
 
     public void setIdLogement(int idLogement) {
         this.idLogement = idLogement;
+    }
+
+    public int getIdProprietaire() {
+        return idProprietaire;
+    }
+
+    public void setIdProprietaire(int idProprietaire) {
+        this.idProprietaire = idProprietaire;
     }
 
     public String getNomImmeuble() {
@@ -110,5 +124,13 @@ public class Logement {
 
     public void setSpecifite(String specifite) {
         this.specifite = specifite;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 }

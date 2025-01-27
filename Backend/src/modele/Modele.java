@@ -69,6 +69,40 @@ public class Modele {
         }
     }
     
+     // Méthode pour vérifier les informations de connexion d'un utilisateur
+     public static Utilisateur verifierUtilisateur(String email, String mot_de_passe) {
+        Utilisateur utilisateur = null;
+        String requete = "SELECT * FROM Utilisateur WHERE email = ? AND mot_de_passe = ?";
+    
+        try {
+            uneConnexion.seConnecter();
+            PreparedStatement preparedStatement = uneConnexion.getMaConnexion().prepareStatement(requete);
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, mot_de_passe);
+    
+            ResultSet resultat = preparedStatement.executeQuery();
+    
+            if (resultat.next()) {
+                utilisateur = new Utilisateur(
+                    resultat.getInt("id_utilisateur"),
+                    resultat.getString("nom"),
+                    resultat.getString("prenom"),
+                    resultat.getString("email"),
+                    resultat.getString("mot_de_passe"),
+                    resultat.getString("role"),
+                    resultat.getString("date_creation")
+                );
+            }
+    
+            preparedStatement.close();
+            uneConnexion.seDeconnecter();
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la vérification des informations de connexion : " + e.getMessage());
+            e.printStackTrace();
+        }
+    
+        return utilisateur;
+    }
 
     // Méthode pour récupérer tous les utilisateurs
     public static ArrayList<Utilisateur> selectAllUtilisateurs() {
@@ -160,53 +194,75 @@ public class Modele {
         // Retourne true si l'email existe, sinon false
         return existe;
     }
+    
+    
 
     // *********************** GESTION DES LOGEMENTS *************************
 
     // Méthode pour insérer un logement
-    public static void insertLogement(Logement unLogement) {
-        String requete = "INSERT INTO Logement VALUES (null, '"
-            + unLogement.getNomImmeuble() + "', '"
-            + unLogement.getAdresse() + "', '"
-            + unLogement.getCodePostal() + "', '"
-            + unLogement.getVille() + "', '"
-            + unLogement.getTypeLogement() + "', "
-            + unLogement.getSurfaceHabitable() + ", "
-            + unLogement.getCapaciteAccueil() + ", '"
-            + unLogement.getSpecifite() + "');";
-        executerRequete(requete);
-    }
+public static void insertLogement(Logement unLogement) {
+    String requete = "INSERT INTO Logement (id_proprietaire, nom_immeuble, adresse, code_postal, ville, type_logement, surface_habitable, capacite_accueil, specifite, photo) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try {
+        uneConnexion.seConnecter();
+        PreparedStatement preparedStatement = uneConnexion.getMaConnexion().prepareStatement(requete);
 
-    // Méthode pour récupérer tous les logements
-    public static ArrayList<Logement> selectAllLogements() {
-        ArrayList<Logement> lesLogements = new ArrayList<>();
-        String requete = "SELECT * FROM Logement;";
-        try {
-            uneConnexion.seConnecter();
-            Statement unStat = uneConnexion.getMaConnexion().createStatement();
-            ResultSet lesResultats = unStat.executeQuery(requete);
-            while (lesResultats.next()) {
-                Logement unLogement = new Logement(
-                    lesResultats.getInt("id_logement"),
-                    lesResultats.getString("nom_immeuble"),
-                    lesResultats.getString("adresse"),
-                    lesResultats.getString("code_postal"),
-                    lesResultats.getString("ville"),
-                    lesResultats.getString("type_logement"),
-                    lesResultats.getFloat("surface_habitable"),
-                    lesResultats.getInt("capacite_accueil"),
-                    lesResultats.getString("specifite")
-                );
-                lesLogements.add(unLogement);
-            }
-            unStat.close();
-            uneConnexion.seDeconnecter();
-        } catch (SQLException exp) {
-            System.out.println("Erreur d'exécution de la requête : " + requete);
-            exp.printStackTrace();
-        }
-        return lesLogements;
+        preparedStatement.setInt(1, unLogement.getIdProprietaire());
+        preparedStatement.setString(2, unLogement.getNomImmeuble());
+        preparedStatement.setString(3, unLogement.getAdresse());
+        preparedStatement.setString(4, unLogement.getCodePostal());
+        preparedStatement.setString(5, unLogement.getVille());
+        preparedStatement.setString(6, unLogement.getTypeLogement());
+        preparedStatement.setFloat(7, unLogement.getSurfaceHabitable());
+        preparedStatement.setInt(8, unLogement.getCapaciteAccueil());
+        preparedStatement.setString(9, unLogement.getSpecifite());
+        preparedStatement.setString(10, unLogement.getPhoto()); // Nouveau champ
+
+        int rowsInserted = preparedStatement.executeUpdate();
+        System.out.println(rowsInserted + " ligne(s) insérée(s).");
+
+        preparedStatement.close();
+        uneConnexion.seDeconnecter();
+    } catch (SQLException exp) {
+        System.out.println("Erreur lors de l'insertion du logement : " + exp.getMessage());
+        exp.printStackTrace();
     }
+}
+    
+    
+ // Méthode pour récupérer tous les logements
+public static ArrayList<Logement> selectAllLogements() {
+    ArrayList<Logement> lesLogements = new ArrayList<>();
+    String requete = "SELECT * FROM Logement;";
+    try {
+        uneConnexion.seConnecter();
+        Statement unStat = uneConnexion.getMaConnexion().createStatement();
+        ResultSet lesResultats = unStat.executeQuery(requete);
+        while (lesResultats.next()) {
+            Logement unLogement = new Logement(
+                lesResultats.getInt("id_logement"),
+                lesResultats.getInt("id_proprietaire"),
+                lesResultats.getString("nom_immeuble"),
+                lesResultats.getString("adresse"),
+                lesResultats.getString("code_postal"),
+                lesResultats.getString("ville"),
+                lesResultats.getString("type_logement"),
+                lesResultats.getFloat("surface_habitable"),
+                lesResultats.getInt("capacite_accueil"),
+                lesResultats.getString("specifite"),
+                lesResultats.getString("photo") // Nouveau champ
+            );
+            lesLogements.add(unLogement);
+        }
+        unStat.close();
+        uneConnexion.seDeconnecter();
+    } catch (SQLException exp) {
+        System.out.println("Erreur d'exécution de la requête : " + requete);
+        exp.printStackTrace();
+    }
+    return lesLogements;
+}
+
 
     // Méthode pour supprimer un logement
     public static void deleteLogement(int idLogement) {
@@ -215,19 +271,20 @@ public class Modele {
     }
 
     // Méthode pour mettre à jour un logement
-    public static void updateLogement(Logement unLogement) {
-        String requete = "UPDATE Logement SET "
-            + "nom_immeuble = '" + unLogement.getNomImmeuble() + "', "
-            + "adresse = '" + unLogement.getAdresse() + "', "
-            + "code_postal = '" + unLogement.getCodePostal() + "', "
-            + "ville = '" + unLogement.getVille() + "', "
-            + "type_logement = '" + unLogement.getTypeLogement() + "', "
-            + "surface_habitable = " + unLogement.getSurfaceHabitable() + ", "
-            + "capacite_accueil = " + unLogement.getCapaciteAccueil() + ", "
-            + "specifite = '" + unLogement.getSpecifite() + "' "
-            + "WHERE id_logement = " + unLogement.getIdLogement() + ";";
-        executerRequete(requete);
-    }
+public static void updateLogement(Logement unLogement) {
+    String requete = "UPDATE Logement SET "
+        + "nom_immeuble = '" + unLogement.getNomImmeuble() + "', "
+        + "adresse = '" + unLogement.getAdresse() + "', "
+        + "code_postal = '" + unLogement.getCodePostal() + "', "
+        + "ville = '" + unLogement.getVille() + "', "
+        + "type_logement = '" + unLogement.getTypeLogement() + "', "
+        + "surface_habitable = " + unLogement.getSurfaceHabitable() + ", "
+        + "capacite_accueil = " + unLogement.getCapaciteAccueil() + ", "
+        + "specifite = '" + unLogement.getSpecifite() + "', "
+        + "photo = '" + unLogement.getPhoto() + "' " // Nouveau champ
+        + "WHERE id_logement = " + unLogement.getIdLogement() + ";";
+    executerRequete(requete);
+}
     // *********************** GESTION DES PROPRIETAIRES *************************
 
     // Méthode pour insérer un propriétaire

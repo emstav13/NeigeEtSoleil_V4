@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter une Habitation</title>
+    <!-- AOS CSS -->
+    <link rel="stylesheet" href="assets/vendor/aos/aos.css">
+    <!-- GLightbox CSS -->
+    <link rel="stylesheet" href="assets/vendor/glightbox/css/glightbox.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+</head>
+
+<body>
+    <header class="header text-center py-4">
+        <h1 class="heading">Ajouter une Habitation</h1>
+    </header>
+
+    <main class="container my-5">
+        <form id="addHabitationForm" enctype="multipart/form-data" class="needs-validation p-4 shadow rounded" style="background: var(--surface-color);" novalidate>
+            <input type="hidden" id="idProprietaire" name="idProprietaire" value="">
+            
+            <div class="mb-3">
+                <label for="nomImmeuble" class="form-label">Nom de l'immeuble :</label>
+                <input type="text" class="form-control" id="nomImmeuble" name="nomImmeuble" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="adresse" class="form-label">Adresse :</label>
+                <input type="text" class="form-control" id="adresse" name="adresse" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="codePostal" class="form-label">Code Postal :</label>
+                    <input type="text" class="form-control" id="codePostal" name="codePostal" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="ville" class="form-label">Ville :</label>
+                    <input type="text" class="form-control" id="ville" name="ville" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="typeLogement" class="form-label">Type de logement :</label>
+                <select id="typeLogement" name="typeLogement" class="form-select" required>
+                    <option value="F1">F1</option>
+                    <option value="F2">F2</option>
+                    <option value="F3">F3</option>
+                    <option value="F4">F4</option>
+                    <option value="F5">F5</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="surfaceHabitable" class="form-label">Surface Habitable (m²) :</label>
+                    <input type="number" class="form-control" id="surfaceHabitable" name="surfaceHabitable" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="capaciteAccueil" class="form-label">Capacité d'Accueil :</label>
+                    <input type="number" class="form-control" id="capaciteAccueil" name="capaciteAccueil" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="specifite" class="form-label">Spécificité :</label>
+                <textarea id="specifite" name="specifite" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="photo" class="form-label">Photo :</label>
+                <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary px-4 py-2">Ajouter</button>
+            </div>
+        </form>
+    </main>
+
+    <footer class="footer text-center py-4">
+        <p class="m-0">© 2025 Neige & Soleil - Tous droits réservés</p>
+    </footer>
+
+    <!-- AOS JS -->
+    <script src="assets/vendor/aos/aos.js"></script>
+    <!-- GLightbox JS -->
+    <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Main JS -->
+    <script src="assets/vendor/purecounter/purecounter_vanilla.js" defer></script>
+    <script src="assets/js/main.js" defer></script>
+</body>
+
+</html>

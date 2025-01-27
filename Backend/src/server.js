@@ -3,7 +3,7 @@ const path = require("path");
 const cors = require("cors");
 
 const app = express();
-const PORT = 8080;
+const PORT = 3000;
 
 // Middleware pour parser les données JSON
 app.use(express.json()); // Permet de lire les requêtes au format JSON
@@ -18,8 +18,14 @@ app.use(cors({
 
 // Import des routes
 const inscriptionRoute = require("./routes/inscription"); // Corrige le chemin relatif
-app.use("/NeigeEtSoleil_V4/inscription", inscriptionRoute); // Ajoute la route d'inscription
+const loginRoute = require("./routes/login");
+const logementRoute = require("./routes/logement"); // Importez la route logement
+const disponibilitesRoutes = require("./routes/disponibilites");
 
+app.use("/NeigeEtSoleil_V4/inscription", inscriptionRoute); // Ajoute la route d'inscription
+app.use("/NeigeEtSoleil_V4/login", loginRoute);
+app.use("/NeigeEtSoleil_V4/logement", logementRoute); // Définir la route 
+app.use("/NeigeEtSoleil_V4/disponibilites", disponibilitesRoutes);
 // Middleware pour journaliser les requêtes reçues
 app.use((req, res, next) => {
     console.log(`Requête reçue : ${req.method} ${req.path}`);

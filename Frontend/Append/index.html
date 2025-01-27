@@ -60,7 +60,8 @@
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
   
-      <a class="btn-getstarted" href="index.html#about">Réservez maintenant</a>
+      <a class="btn-getstarted" id="btnSeConnecter" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Se connecter</a>
+
   
     </div>
   </header>
@@ -76,14 +77,14 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-10">
-            <h2 data-aos="fade-up" data-aos-delay="100">Bienvenue chez Neige et Soleil</h2>
+            <h2 id="welcomeMessage" data-aos="fade-up" data-aos-delay="100">Bienvenue chez Neige et Soleil</h2>
+
             <p data-aos="fade-up" data-aos-delay="200">Profitez des meilleures locations et des activités inoubliables à la montagne.</p>
           </div>
           <div class="col-lg-5" data-aos="fade-up" data-aos-delay="300">
             <!-- Bouton pour ouvrir le modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signupModal">
-              S'inscrire
-            </button>
+            <button type="button" class="btn btn-primary" id="btnSInscrire" data-bs-toggle="modal" data-bs-target="#signupModal">S'inscrire</button>
+             
           </div>
         </div>
       </div>
@@ -255,15 +256,17 @@
         <div class="row gy-4">
     
           <!-- Service 1 : Location de logements -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+          <div id="location-logements" class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
             <div class="service-item d-flex">
               <div class="icon flex-shrink-0"><i class="bi bi-house"></i></div>
               <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Location de logements</a></h4>
+                <h4 class="title"><a href="#" class="stretched-link">Location de logements</a></h4>
                 <p class="description">Profitez d'une large gamme de logements confortables, du studio cosy au grand chalet familial.</p>
               </div>
             </div>
-          </div><!-- Fin Service 1 -->
+          </div>
+          <!-- Fin Service 1 -->
+
     
           <!-- Service 2 : Activités sportives -->
           <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
@@ -326,92 +329,6 @@
     
     </section>
     <!-- /Services Section -->
-
-    <!-- Features Section -->
-    <section id="services" class="services section">
-
-      <!-- Titre de la section -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Nos Services</h2>
-        <p>Découvrez tout ce que Neige et Soleil peut vous offrir pour des vacances inoubliables à la montagne.</p>
-      </div><!-- Fin du titre de section -->
-    
-      <div class="container">
-    
-        <div class="row gy-4">
-    
-          <!-- Service 1 : Location de logements -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="service-item d-flex">
-              <div class="icon flex-shrink-0"><i class="bi bi-house"></i></div>
-              <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Location de logements</a></h4>
-                <p class="description">Profitez d'une large gamme de logements confortables, du studio cosy au grand chalet familial.</p>
-              </div>
-            </div>
-          </div><!-- Fin Service 1 -->
-    
-          <!-- Service 2 : Activités sportives -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="service-item d-flex">
-              <div class="icon flex-shrink-0"><i class="bi bi-skiing"></i></div>
-              <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Activités sportives</a></h4>
-                <p class="description">Ski, snowboard, randonnée ou escalade : nous avons tout pour satisfaire les amateurs de sensations fortes.</p>
-              </div>
-            </div>
-          </div><!-- Fin Service 2 -->
-    
-          <!-- Service 3 : Location d'équipements -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="service-item d-flex">
-              <div class="icon flex-shrink-0"><i class="bi bi-gear"></i></div>
-              <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Location d'équipements</a></h4>
-                <p class="description">Matériel de ski, raquettes, vélos : louez tout ce dont vous avez besoin directement auprès de nous.</p>
-              </div>
-            </div>
-          </div><!-- Fin Service 3 -->
-    
-          <!-- Service 4 : Guides touristiques -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="service-item d-flex">
-              <div class="icon flex-shrink-0"><i class="bi bi-map"></i></div>
-              <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Guides touristiques</a></h4>
-                <p class="description">Explorez les environs grâce à nos guides expérimentés qui vous feront découvrir des paysages uniques.</p>
-              </div>
-            </div>
-          </div><!-- Fin Service 4 -->
-    
-          <!-- Service 5 : Séjours personnalisés -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="500">
-            <div class="service-item d-flex">
-              <div class="icon flex-shrink-0"><i class="bi bi-stars"></i></div>
-              <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Séjours personnalisés</a></h4>
-                <p class="description">Créez des séjours sur-mesure avec nos équipes pour une expérience 100 % adaptée à vos besoins.</p>
-              </div>
-            </div>
-          </div><!-- Fin Service 5 -->
-    
-          <!-- Service 6 : Assistance 24/7 -->
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="600">
-            <div class="service-item d-flex">
-              <div class="icon flex-shrink-0"><i class="bi bi-headset"></i></div>
-              <div>
-                <h4 class="title"><a href="services-details.html" class="stretched-link">Assistance 24/7</a></h4>
-                <p class="description">Bénéficiez d'une assistance complète tout au long de votre séjour, disponible 24 heures sur 24.</p>
-              </div>
-            </div>
-          </div><!-- Fin Service 6 -->
-    
-        </div>
-    
-      </div>
-    
-    </section>
-    <!-- /Features Section -->
 
     <!-- Portfolio Section -->
     <section id="portfolio" class="portfolio section">
@@ -1155,6 +1072,33 @@
     </div>
   
   </footer>
+
+    <!--Modale pour la connexion-->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Connexion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formLogin" method="post">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" id="loginEmail" placeholder="Entrez votre email" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Mot de passe</label>
+              <input type="password" name="password" class="form-control" id="loginPassword" placeholder="Entrez votre mot de passe" required>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary">Se connecter</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
   
     <!-- Modal d'inscription -->
 <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
@@ -1217,7 +1161,9 @@
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/main.js" defer></script>
+
+  
 
 </body>
 

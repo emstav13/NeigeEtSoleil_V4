@@ -763,6 +763,10 @@ section,
 /*--------------------------------------------------------------
 # Hero Section
 --------------------------------------------------------------*/
+#btnSInscrire {
+  display: none; /* Par défaut, caché si nécessaire */
+}
+
 .hero {
   width: 100%;
   min-height: 100vh;

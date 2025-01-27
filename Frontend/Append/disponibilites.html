@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilités</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Recherche de Logements Disponibles</h1>
+        <form id="searchForm" class="row g-3 mt-4">
+            <div class="col-md-4">
+                <label for="ville" class="form-label">Ville</label>
+                <input type="text" class="form-control" id="ville" name="ville" placeholder="Ex: Paris">
+            </div>
+            <div class="col-md-4">
+                <label for="dateDebut" class="form-label">Date Début</label>
+                <input type="date" class="form-control" id="dateDebut" name="dateDebut">
+            </div>
+            <div class="col-md-4">
+                <label for="dateFin" class="form-label">Date Fin</label>
+                <input type="date" class="form-control" id="dateFin" name="dateFin">
+            </div>
+            <div class="col-md-3">
+                <label for="prixMin" class="form-label">Prix Minimum</label>
+                <input type="number" class="form-control" id="prixMin" name="prixMin" placeholder="Ex: 100">
+            </div>
+            <div class="col-md-3">
+                <label for="prixMax" class="form-label">Prix Maximum</label>
+                <input type="number" class="form-control" id="prixMax" name="prixMax" placeholder="Ex: 500">
+            </div>
+            <div class="col-md-3">
+                <label for="capaciteAccueil" class="form-label">Capacité d'Accueil</label>
+                <input type="number" class="form-control" id="capaciteAccueil" name="capaciteAccueil" placeholder="Ex: 4">
+            </div>
+            <div class="col-md-3">
+                <label for="type_logement" class="form-label">Type de Logement</label>
+                <select class="form-select" id="type_logement" name="type_logement">
+                    <option value="">Choisir</option>
+                    <option value="F1">F1</option>
+                    <option value="F2">F2</option>
+                    <option value="F3">F3</option>
+                    <option value="F4">F4</option>
+                    <option value="F5">F5</option>
+                </select>
+            </div>
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+        </form>
+
+        <div id="results" class="mt-5">
+            <!-- Les résultats seront affichés ici -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
