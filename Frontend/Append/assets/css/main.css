@@ -2690,8 +2690,22 @@ section,
 # Starter Section Section
 --------------------------------------------------------------*/
 .starter-section {
-  /* Add your styles here */
+  background-color: #f8f9fa; /* Couleur de fond */
+  padding: 50px 20px; /* Espacement intérieur */
+  text-align: center; /* Centrage du texte */
 }
+
+.starter-section h2 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+.starter-section p {
+  font-size: 16px;
+  color: #666;
+}
+
 
 /*--------------------------------------------------------------
 # Widgets
@@ -2867,4 +2881,10 @@ section,
   padding-left: 5px;
   color: color-mix(in srgb, var(--default-color), transparent 60%);
   font-size: 14px;
+}
+.card-img-top {
+  width: 100%;
+  height: 250px; /* Ajuste selon la hauteur souhaitée */
+  object-fit: cover; /* Assure que l'image reste bien cadrée */
+  border-radius: 10px;
 }

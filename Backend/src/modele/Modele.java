@@ -4,7 +4,10 @@ import controleur.Utilisateur;
 import controleur.Logement;
 import controleur.Proprietaire;
 import controleur.Contrat;
+import controleur.Culturelle;
+import controleur.Detente;
 import controleur.Saison;
+import controleur.Sport;
 import controleur.Tarif;
 import controleur.Reservation;
 import controleur.Station;
@@ -45,7 +48,33 @@ public class Modele {
             exp.printStackTrace();
         }
     }
-    
+    // 🟢 Exécute une requête SQL d'insertion et retourne l'ID généré
+public static int executerRequeteAvecRetourID(String requete) {
+    int idGenere = -1; // Valeur par défaut en cas d'erreur
+
+    try {
+        uneConnexion.seConnecter();
+        PreparedStatement ps = uneConnexion.getMaConnexion().prepareStatement(requete, Statement.RETURN_GENERATED_KEYS);
+        ps.executeUpdate();
+
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()) {
+            idGenere = rs.getInt(1); // Récupérer l'ID généré
+        }
+
+        rs.close();
+        ps.close();
+        uneConnexion.seDeconnecter();
+    } catch (SQLException exp) {
+        System.out.println("❌ Erreur lors de l'exécution de la requête avec retour ID : " + requete);
+        exp.printStackTrace();
+    }
+
+    return idGenere;
+}
+
+  
+
 
     // *********************** GESTION DES UTILISATEURS *************************
 
@@ -606,53 +635,151 @@ public static void updateLogement(Logement unLogement) {
     	
     // *********************** GESTION DES ACTIVITÉS *************************
 
-    // Méthode pour insérer une activité
-    public static void insertActivite(Activite uneActivite) {
-        String requete = "INSERT INTO Activite VALUES (null, '"
-            + uneActivite.getNomActivite() + "', "
-            + uneActivite.getIdStation() + ");";
-        executerRequete(requete);
+// // 🟢 Insérer une activité sportive
+public static void insertSport(Sport uneActivite) throws SQLException {
+    String requeteGenerale = "INSERT INTO activite_generale VALUES (null, '"
+        + uneActivite.getNomActivite() + "', " + uneActivite.getIdStation() + ");";
+    
+    int idActivite = executerRequeteAvecRetourID(requeteGenerale); // Récupère l'ID inséré
+
+    if (idActivite == -1) {
+        System.out.println("❌ Erreur : l'ID de l'activité sportive n'a pas pu être récupéré.");
+        return;
     }
 
-    // Méthode pour récupérer toutes les activités
-    public static ArrayList<Activite> selectAllActivites() {
-        ArrayList<Activite> lesActivites = new ArrayList<>();
-        String requete = "SELECT * FROM Activite;";
-        try {
-            uneConnexion.seConnecter();
-            Statement unStat = uneConnexion.getMaConnexion().createStatement();
-            ResultSet lesResultats = unStat.executeQuery(requete);
-            while (lesResultats.next()) {
-                Activite uneActivite = new Activite(
-                    lesResultats.getInt("id_activite"),
-                    lesResultats.getString("nom_activite"),
-                    lesResultats.getInt("id_station")
+    String requeteSpecifique = "INSERT INTO activite_sportive VALUES (" + idActivite + ", '"
+        + uneActivite.getTypeSport() + "', '" + uneActivite.getNiveauDifficulte() + "');";
+
+    executerRequete(requeteSpecifique);
+}
+
+// 🟢 Insérer une activité culturelle
+public static void insertCulturelle(Culturelle uneActivite) throws SQLException {
+    String requeteGenerale = "INSERT INTO activite_generale VALUES (null, '"
+        + uneActivite.getNomActivite() + "', " + uneActivite.getIdStation() + ");";
+    
+    int idActivite = executerRequeteAvecRetourID(requeteGenerale);
+
+    if (idActivite == -1) {
+        System.out.println("❌ Erreur : l'ID de l'activité culturelle n'a pas pu être récupéré.");
+        return;
+    }
+
+    String requeteSpecifique = "INSERT INTO activite_culturelle VALUES (" + idActivite + ", "
+        + uneActivite.getDuree() + ", '" + uneActivite.getPublicCible() + "');";
+
+    executerRequete(requeteSpecifique);
+}
+
+// 🟢 Insérer une activité détente
+public static void insertDetente(Detente uneActivite) throws SQLException {
+    String requeteGenerale = "INSERT INTO activite_generale VALUES (null, '"
+        + uneActivite.getNomActivite() + "', " + uneActivite.getIdStation() + ");";
+
+    int idActivite = executerRequeteAvecRetourID(requeteGenerale);
+
+    if (idActivite == -1) {
+        System.out.println("❌ Erreur : l'ID de l'activité de détente n'a pas pu être récupéré.");
+        return;
+    }
+
+    String requeteSpecifique = "INSERT INTO activite_detente VALUES (" + idActivite + ", '"
+        + uneActivite.getTypeDetente() + "', " + uneActivite.getPrixEntree() + ");";
+
+    executerRequete(requeteSpecifique);
+}
+
+
+// 🔍 Récupérer toutes les activités (avec leur type spécifique)
+public static ArrayList<Activite> selectAllActivites() {
+    ArrayList<Activite> lesActivites = new ArrayList<>();
+    String requete = "SELECT * FROM activite_generale ag "
+                    + "LEFT JOIN activite_sportive sp ON ag.id_activite = sp.id_activite "
+                    + "LEFT JOIN activite_culturelle cu ON ag.id_activite = cu.id_activite "
+                    + "LEFT JOIN activite_detente de ON ag.id_activite = de.id_activite;";
+
+    try {
+        uneConnexion.seConnecter();
+        Statement unStat = uneConnexion.getMaConnexion().createStatement();
+        ResultSet lesResultats = unStat.executeQuery(requete);
+
+        while (lesResultats.next()) {
+            int idActivite = lesResultats.getInt("id_activite");
+            String nomActivite = lesResultats.getString("nom_activite");
+            int idStation = lesResultats.getInt("id_station");
+
+            if (lesResultats.getString("type_sport") != null) {
+                Sport uneActivite = new Sport(
+                    idActivite, nomActivite, idStation,
+                    lesResultats.getString("type_sport"),
+                    lesResultats.getString("niveau_difficulte")
+                );
+                lesActivites.add(uneActivite);
+            } else if (lesResultats.getInt("duree") != 0) {
+                Culturelle uneActivite = new Culturelle(
+                    idActivite, nomActivite, idStation,
+                    lesResultats.getInt("duree"),
+                    lesResultats.getString("public_cible")
+                );
+                lesActivites.add(uneActivite);
+            } else if (lesResultats.getString("type_detente") != null) {
+                Detente uneActivite = new Detente(
+                    idActivite, nomActivite, idStation,
+                    lesResultats.getString("type_detente"),
+                    lesResultats.getDouble("prix_entree")
                 );
                 lesActivites.add(uneActivite);
             }
-            unStat.close();
-            uneConnexion.seDeconnecter();
-        } catch (SQLException exp) {
-            System.out.println("Erreur d'exécution de la requête : " + requete);
-            exp.printStackTrace();
         }
-        return lesActivites;
-    }
 
-    // Méthode pour supprimer une activité
-    public static void deleteActivite(int idActivite) {
-        String requete = "DELETE FROM Activite WHERE id_activite = " + idActivite + ";";
-        executerRequete(requete);
+        unStat.close();
+        uneConnexion.seDeconnecter();
+    } catch (SQLException exp) {
+        System.out.println("Erreur lors de la récupération des activités.");
+        exp.printStackTrace();
     }
+    return lesActivites;
+}
 
-    // Méthode pour mettre à jour une activité
-    public static void updateActivite(Activite uneActivite) {
-        String requete = "UPDATE Activite SET "
-            + "nom_activite = '" + uneActivite.getNomActivite() + "', "
-            + "id_station = " + uneActivite.getIdStation() + " "
-            + "WHERE id_activite = " + uneActivite.getIdActivite() + ";";
-        executerRequete(requete);
+// 🛑 Supprimer une activité (supprime automatiquement les sous-classes grâce au DELETE CASCADE)
+public static void deleteActivite(int idActivite) {
+    String requete = "DELETE FROM activite_generale WHERE id_activite = " + idActivite + ";";
+    executerRequete(requete);
+}
+
+// 🔄 Mettre à jour une activité
+public static void updateActivite(Activite uneActivite) {
+    String requete = "UPDATE activite_generale SET "
+        + "nom_activite = '" + uneActivite.getNomActivite() + "', "
+        + "id_station = " + uneActivite.getIdStation() + " "
+        + "WHERE id_activite = " + uneActivite.getIdActivite() + ";";
+    
+    executerRequete(requete);
+
+    if (uneActivite instanceof Sport) {
+        Sport sport = (Sport) uneActivite;
+        String requeteSport = "UPDATE activite_sportive SET "
+            + "type_sport = '" + sport.getTypeSport() + "', "
+            + "niveau_difficulte = '" + sport.getNiveauDifficulte() + "' "
+            + "WHERE id_activite = " + sport.getIdActivite() + ";";
+        executerRequete(requeteSport);
+    } else if (uneActivite instanceof Culturelle) {
+        Culturelle culturelle = (Culturelle) uneActivite;
+        String requeteCulturelle = "UPDATE activite_culturelle SET "
+            + "duree = " + culturelle.getDuree() + ", "
+            + "public_cible = '" + culturelle.getPublicCible() + "' "
+            + "WHERE id_activite = " + culturelle.getIdActivite() + ";";
+        executerRequete(requeteCulturelle);
+    } else if (uneActivite instanceof Detente) {
+        Detente detente = (Detente) uneActivite;
+        String requeteDetente = "UPDATE activite_detente SET "
+            + "type_detente = '" + detente.getTypeDetente() + "', "
+            + "prix_entree = " + detente.getPrixEntree() + " "
+            + "WHERE id_activite = " + detente.getIdActivite() + ";";
+        executerRequete(requeteDetente);
     }
+}
+
 
     // *********************** GESTION DES ÉQUIPEMENTS *************************
 

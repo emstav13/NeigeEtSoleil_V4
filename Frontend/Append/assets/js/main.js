@@ -1,5 +1,6 @@
 (function () {
   "use strict";
+  console.log("🟢 Début d'exécution main.js");
 
   /**
    * Fonction pour appliquer la classe `.scrolled` sur le body lors du défilement
@@ -100,23 +101,24 @@
    */
   function initGlightbox() {
     if (typeof GLightbox !== "undefined") {
-      GLightbox({ selector: ".glightbox" });
+        GLightbox({ selector: ".glightbox" });
+        console.log("✅ GLightbox initialisé avec succès !");
     } else {
-      console.error("GLightbox n'est pas chargé !");
+        console.warn("⚠️ GLightbox n'est pas chargé !");
     }
-  }
-
+}
+console.log("🟢 exécution main.js lignes 110");
   /**
    * Initialisation de PureCounter
    */
   function initPureCounter() {
-    try {
-      new PureCounter();
-      console.log("PureCounter initialisé avec succès !");
-    } catch (error) {
-      console.error("Erreur lors de l'initialisation de PureCounter :", error);
+    if (typeof PureCounter !== "undefined") {
+        new PureCounter();
+        console.log("✅ PureCounter initialisé avec succès !");
+    } else {
+        console.warn("⚠️ PureCounter n'est pas chargé !");
     }
-  }
+}
 
   // Swiper sliders
   function initSwiper() {
@@ -224,6 +226,7 @@ if (locationLogementsDiv) {
 
 }
 
+console.log("🟢 exécution main.js lignes 229");
 document.addEventListener("DOMContentLoaded", () => {
   // Vérifie si on est sur la page index.html
   if (window.location.pathname.includes("index.html")) {
@@ -258,7 +261,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-console.log("main.js chargé")
+try {
+  console.log("🟢 exécution main.js lignes 264");
+} catch (error) {
+  console.error("🔥 Erreur détectée avant la ligne 264 :", error);
+}
+
 /*********************add-habitation.html****************************** */
 
 function handleAddHabitationPage() {
@@ -341,12 +349,8 @@ function handleAddHabitationPage() {
         });
     });
   }
-
-
-
-
-
   
+  console.log("🟢 exécution main.js lignes 348");
 /*************************inscription.html*********************************** */
 
 function handleInscriptionPage() {
@@ -386,129 +390,341 @@ function handleInscriptionPage() {
     });
   }
 }
+};
 /****************Disponibilites************************* */
 
 function handleDisponibilitesPage() {
-  console.log("handleDisponibilitesPage est exécutée");
+  console.log("📌 handleDisponibilitesPage est exécutée");
 
   const searchForm = document.getElementById("searchForm");
   const resultsContainer = document.getElementById("results");
+  const btnMesReservations = document.getElementById("btnMesReservations");
+  const reservationsContainer = document.getElementById("reservationsContainer");
 
-  if (!searchForm || !resultsContainer) {
-      console.error("Formulaire ou conteneur de résultats introuvable !");
-      return;
+  if (!searchForm || !resultsContainer || !btnMesReservations || !reservationsContainer) {
+    console.error("❌ Un ou plusieurs éléments nécessaires ne sont pas trouvés !");
+    return;
   }
 
+  // 🔍 Recherche de logements disponibles
   searchForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      console.log("Formulaire soumis");
+    event.preventDefault();
+    console.log("📌 Formulaire soumis");
 
-      // Récupération des valeurs des champs du formulaire
-      const searchParams = {
-          ville: document.getElementById("ville").value.trim(),
-          dateDebut: document.getElementById("dateDebut").value,
-          dateFin: document.getElementById("dateFin").value,
-          prixMin: document.getElementById("prixMin").value,
-          prixMax: document.getElementById("prixMax").value,
-          capaciteAccueil: document.getElementById("capaciteAccueil").value,
-          type_logement: document.getElementById("type_logement").value,
-      };
+    // Récupération des valeurs du formulaire
+    const searchParams = {
+      ville: document.getElementById("ville").value.trim(),
+      dateDebut: document.getElementById("dateDebut").value,
+      dateFin: document.getElementById("dateFin").value,
+      prixMin: document.getElementById("prixMin").value,
+      prixMax: document.getElementById("prixMax").value,
+      capaciteAccueil: document.getElementById("capaciteAccueil").value,
+      type_logement: document.getElementById("type_logement").value,
+    };
 
-      console.log("Paramètres de recherche :", searchParams);
+    console.log("🔍 Paramètres de recherche :", searchParams);
+
+    try {
+      const queryParams = new URLSearchParams(
+        Object.entries(searchParams).filter(([_, value]) => value !== "")
+      ).toString();
+      const url = `http://localhost:3000/NeigeEtSoleil_V4/disponibilites/disponibles?${queryParams}`;
+
+      console.log("📡 Requête envoyée à l'URL :", url);
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Erreur API : ${response.statusText}`);
+      }
+
+      const logements = await response.json();
+      console.log("📥 Réponse reçue :", logements);
+
+      displayResults(logements);
+    } catch (error) {
+      console.error("❌ Erreur lors de la recherche :", error.message);
+      resultsContainer.innerHTML = `<div class="alert alert-danger text-center">
+        Une erreur est survenue lors de la recherche : ${error.message}
+      </div>`;
+    }
+  });
+
+  // 🏠 Affichage des logements disponibles
+  function displayResults(logements) {
+    console.log("🔍 Logements reçus dans displayResults:", logements);
+
+
+    if (logements.length === 0) {
+      resultsContainer.innerHTML = `<div class="alert alert-warning text-center">
+        Aucun logement disponible pour les critères sélectionnés.
+      </div>`;
+      return;
+    }
+
+    const resultsHTML = logements.map((logement) => {
+      // Vérification et correction du chemin de l'image
+      const imageSrc = logement.photo && logement.photo.trim() !== "" 
+        ? `http://localhost:3000/assets/img/habitation/${logement.photo}`
+        : "http://localhost:3000/assets/img/habitation/default.jpg";
+
+      return `
+        <div class="card mb-3">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img src="${imageSrc}" class="img-fluid rounded-start" alt="${logement.nom_immeuble}" 
+                   onerror="this.onerror=null; this.src='http://localhost:3000/assets/img/habitation/default.jpg'; console.error('❌ Image non trouvée:', this.src);">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">${logement.nom_immeuble}</h5>
+                <p class="card-text">
+                  <strong>Adresse :</strong> ${logement.adresse}<br>
+                  <strong>Ville :</strong> ${logement.ville}<br>
+                  <strong>Type :</strong> ${logement.type_logement}<br>
+                  <strong>Surface :</strong> ${logement.surface_habitable} m²<br>
+                  <strong>Capacité :</strong> ${logement.capacite_accueil} personnes<br>
+                  <strong>Prix :</strong> ${logement.prix !== null ? logement.prix + " €" : "Non défini"}<br>
+                  <strong>Saison :</strong> ${logement.saison_nom !== null ? logement.saison_nom : "Non définie"}
+                </p>
+                <button class="btn btn-success reserver-btn" 
+                    data-id-logement="${logement.id_logement}" 
+                    data-date-debut="${document.getElementById('dateDebut').value}" 
+                    data-date-fin="${document.getElementById('dateFin').value}">
+                    Réserver
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+
+    resultsContainer.innerHTML = resultsHTML;
+
+    // Ajout des événements pour les boutons de réservation
+    document.querySelectorAll(".reserver-btn").forEach((button) => {
+      button.addEventListener("click", handleReservation);
+    });
+  }
+
+  // 🛒 Fonction pour gérer la réservation
+  function handleReservation(event) {
+    event.preventDefault();
+    const button = event.target;
+    const idLogement = button.getAttribute("data-id-logement");
+    const dateDebut = button.getAttribute("data-date-debut");
+    const dateFin = button.getAttribute("data-date-fin");
+
+    if (!idLogement || !dateDebut || !dateFin) {
+      alert("Données de réservation manquantes !");
+      return;
+    }
+
+    fetch("http://localhost:3000/NeigeEtSoleil_V4/reservation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idLogement, dateDebut, dateFin }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de la réservation.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert("Réservation effectuée avec succès !");
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error("Erreur :", error);
+        alert("Impossible d'effectuer la réservation.");
+      });
+  }
+
+
+ 
+// 🛒 Récupération des réservations
+if (btnMesReservations) {
+  btnMesReservations.addEventListener("click", async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+      alert("Vous devez être connecté pour voir vos réservations !");
+      return;
+    }
+
+    const url = `http://localhost:3000/NeigeEtSoleil_V4/disponibilites/mes-reservations/${user.id_utilisateur}`;
+    console.log("📡 URL des réservations :", url);
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des réservations.");
+      }
+
+      const reservations = await response.json();
+      displayReservations(reservations);
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération des réservations :", error.message);
+      reservationsContainer.innerHTML = `<div class="alert alert-danger text-center">
+        Une erreur est survenue : ${error.message}
+      </div>`;
+    }
+  });
+} else {
+  console.warn("⚠️ Le bouton btnMesReservations n'a pas été trouvé sur cette page.");
+}
+
+
+  // 📝 Affichage des réservations
+  function displayReservations(reservations) {
+    console.log("Affichage des réservations :", reservations);
+
+    if (reservations.length === 0) {
+        reservationsContainer.innerHTML = `
+            <div class="alert alert-warning text-center" role="alert">
+                Vous n'avez aucune réservation.
+            </div>`;
+        return;
+    }
+
+    const reservationsHTML = reservations
+        .map((reservation) => {
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">${reservation.logement_nom}</h5>
+                        <p class="card-text">
+                            <strong>Adresse :</strong> ${reservation.adresse || "Adresse non disponible"}<br>
+                            <strong>Dates :</strong> Du ${new Date(reservation.date_debut).toLocaleDateString()} au ${new Date(reservation.date_fin).toLocaleDateString()}<br>
+                            <strong>Statut :</strong> ${reservation.statut}
+                        </p>
+                        <button class="btn btn-danger annuler-btn" data-id-reservation="${reservation.id_reservation}">
+                            Annuler
+                        </button>
+                    </div>
+                </div>`;
+        })
+        .join("");
+
+    reservationsContainer.innerHTML = reservationsHTML;
+
+    // Ajouter des événements pour les boutons "Annuler"
+    const annulerButtons = document.querySelectorAll(".annuler-btn");
+    annulerButtons.forEach((button) => {
+        button.addEventListener("click", handleCancelReservation);
+    });
+}
+
+
+  // 🛑 Annulation de réservation
+  async function handleCancelReservation(event) {
+    const button = event.target;
+    const idReservation = button.getAttribute("data-id-reservation");
+
+    console.log("ID de la réservation à annuler :", idReservation);
+
+    try {
+        const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/annuler-reservation/${idReservation}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (!response.ok) {
+            throw new Error("Erreur lors de l'annulation.");
+        }
+
+        alert("Réservation annulée avec succès !");
+        button.closest(".card").remove();
+    } catch (error) {
+        console.error("Erreur lors de l'annulation :", error.message);
+        alert("Impossible d'annuler la réservation.");
+    }
+}
+
+console.log("🟢 exécution main.js lignes 632");
+}
+
+/******************* les activités***********************/
+function handleActivitesPage() {
+  console.log("📌 handleActivitesPage() est bien exécutée !");
+  
+  async function fetchAndDisplayActivites(url, container) {
+      console.log(`📡 Tentative de récupération des activités depuis ${url}...`);
 
       try {
-          // Construction de l'URL avec les paramètres
-          const queryParams = new URLSearchParams(
-              Object.entries(searchParams).filter(([_, value]) => value !== "")
-          ).toString();
-          const url = `http://localhost:3000/NeigeEtSoleil_V4/disponibilites/disponibles?${queryParams}`;
-
-          console.log("Requête envoyée à l'URL :", url);
-
-          // Appel API
           const response = await fetch(url);
+          console.log(`📡 Requête envoyée vers ${url}`);
+
           if (!response.ok) {
               throw new Error(`Erreur API : ${response.statusText}`);
           }
 
-          const logements = await response.json();
-          console.log("Réponse reçue :", logements);
+          const activites = await response.json();
+          console.log("📥 Réponse API reçue :", activites);
 
-          // Affichage des résultats
-          displayResults(logements);
-      } catch (error) {
-          console.error("Erreur lors de la recherche :", error.message);
-          resultsContainer.innerHTML = `
-              <div class="alert alert-danger text-center" role="alert">
-                  Une erreur est survenue lors de la recherche : ${error.message}
-              </div>`;
-      }
-  });
+          if (activites.length === 0) {
+              container.innerHTML = `<div class="alert alert-warning text-center">Aucune activité disponible.</div>`;
+              return;
+          }
 
-  function displayResults(logements) {
-      console.log("Affichage des résultats :", logements);
-
-      if (logements.length === 0) {
-          resultsContainer.innerHTML = `
-              <div class="alert alert-warning text-center" role="alert">
-                  Aucun logement disponible pour les critères sélectionnés.
-              </div>`;
-          return;
-      }
-
-      const resultsHTML = logements
-          .map((logement) => {
-              return `
-                  <div class="card mb-3">
-                      <div class="row g-0">
-                          <div class="col-md-4">
-                              <img src="${logement.photo || 'https://via.placeholder.com/150'}" class="img-fluid rounded-start" alt="${logement.nom_immeuble}">
-                          </div>
-                          <div class="col-md-8">
-                              <div class="card-body">
-                                  <h5 class="card-title">${logement.nom_immeuble}</h5>
-                                  <p class="card-text">
-                                      <strong>Adresse :</strong> ${logement.adresse}<br>
-                                      <strong>Ville :</strong> ${logement.ville}<br>
-                                      <strong>Type :</strong> ${logement.type_logement}<br>
-                                      <strong>Surface :</strong> ${logement.surface_habitable} m²<br>
-                                      <strong>Capacité :</strong> ${logement.capacite_accueil} personnes<br>
-                                      <strong>Spécificités :</strong> ${logement.specifite || 'N/A'}<br>
-                                      <strong>Prix :</strong> ${logement.prix} €<br>
-                                      <strong>Saison :</strong> ${logement.saison_nom}
-                                  </p>
-                              </div>
-                          </div>
+          container.innerHTML = activites.map((activite) => `
+              <div class="col-md-6 col-lg-4">
+                  <div class="card">
+                      <img src="http://localhost:3000/${activite.image}" class="card-img-top">
+                      <div class="card-body">
+                          <h5 class="card-title">${activite.nom_activite}</h5>
+                          <button class="btn btn-primary reserver-btn" data-id="${activite.id_activite}">Réserver</button>
                       </div>
-                  </div>`;
-          })
-          .join("");
+                  </div>
+              </div>`).join("");
 
-      resultsContainer.innerHTML = resultsHTML;
+      } catch (error) {
+          console.error("❌ Erreur lors du chargement des activités :", error);
+          container.innerHTML = `<div class="alert alert-danger text-center">Impossible de charger les activités.</div>`;
+      }
   }
+
+  fetchAndDisplayActivites("http://localhost:3000/NeigeEtSoleil_V4/activites/sportives", document.getElementById("sportContainer"));
+  fetchAndDisplayActivites("http://localhost:3000/NeigeEtSoleil_V4/activites/culturelles", document.getElementById("culturelleContainer"));
+  fetchAndDisplayActivites("http://localhost:3000/NeigeEtSoleil_V4/activites/detente", document.getElementById("detenteContainer"));
 }
 
+
+console.log("🟢 exécution main.js lignes 680 tout just avant la fonction initializePageScripts");
 /************************ Initialisation dynamique***************** */
 function initializePageScripts() {
   const page = window.location.pathname;
+  console.log("🚀 initializePageScripts() est bien appelée !");
+  console.log("🌍 Page chargée :", page);  // Vérifie le chemin de la page actuelle
 
   if (page.includes("index.html")) {
-    handleIndexPage();
-    console.log("Initialisation de handleIndexPage");
+      handleIndexPage();
+      console.log("Initialisation de handleIndexPage");
   } else if (page.includes("add-habitation.html")) {
-    console.log("Initialisation de handleAddHabitationPage"); 
-    handleAddHabitationPage();
+      handleAddHabitationPage();
+      console.log("Initialisation de handleAddHabitationPage");
   } else if (page.includes("inscription.html")) {
-    handleInscriptionPage();
-    console.log("Initialisation de handleInscriptionPage");
-  }else if (page.includes("disponibilites.html")) {
-    console.log("Initialisation de handleDisponibilitesPage détectée");
+      handleInscriptionPage();
+      console.log("Initialisation de handleInscriptionPage");
+  } else if (page.includes("activites.html")|| page.endsWith("activities.html")) {  // Vérifie si on est bien sur activites.html
+      console.log("✅ Détection de activites.html, exécution de handleActivitesPage");
+      handleActivitesPage();
+  } else if (page.includes("disponibilites.html")){
+    console.log("✅ Détection de disponibilites.html, exécution de handleActivitesPage");
     handleDisponibilitesPage();
-}
+  } 
+  else {
+      console.warn("Aucune correspondance trouvée pour l'initialisation.");
+  }
 }
 
+console.log("🔍 Tentative d'ajout de l'écouteur DOMContentLoaded...");
 document.addEventListener("DOMContentLoaded", initializePageScripts);
-console.log("Le DOM est complètement chargé");  
-}
+console.log("✅ Écouteur DOMContentLoaded ajouté !");
+
+initializePageScripts(); // 🔥 Force l'exécution immédiate
+console.log("🟢 exécution main.js lignes 709 et fin de main.js");
+
+
 console.log("Appel direct de handleAddHabitationPage");
 handleAddHabitationPage();
