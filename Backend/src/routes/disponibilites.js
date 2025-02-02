@@ -111,13 +111,13 @@ router.get("/mes-reservations/:id_utilisateur", async (req, res) => {
 
 // 📌 4️⃣ Ajouter une réservation avec une **vérification anti-doublon**
 router.post("/reservation", async (req, res) => {
-    const { id_utilisateur, id_logement, date_debut, date_fin, statut } = req.body;
+    const { id_utilisateur, id_logement, date_debut, date_fin } = req.body;
 
-    if (!id_utilisateur || !id_logement || !date_debut || !date_fin || !statut) {
+    if (!id_utilisateur || !id_logement || !date_debut || !date_fin) {
         return res.status(400).json({ error: "Tous les champs sont obligatoires." });
     }
 
-    // Vérification anti-doublon avant l’insertion
+    // Vérification anti-doublon avant insertion
     const checkSql = `
         SELECT * FROM reservation
         WHERE id_utilisateur = ? 
@@ -135,8 +135,17 @@ router.post("/reservation", async (req, res) => {
             return res.status(409).json({ error: "Réservation déjà existante." });
         }
 
-        // Si pas de doublon, ajouter la réservation
-        console.log("📌 Ajout d'une nouvelle réservation...");
+        // Déterminer le statut automatiquement en fonction de la date actuelle
+        const today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD
+
+        let statut = "reserve"; // Par défaut à "reserve"
+
+        if (today > date_fin) {
+            statut = "disponible";
+        }
+
+        // Insérer la réservation avec le statut déterminé
+        console.log(`📌 Ajout d'une nouvelle réservation avec statut : ${statut}`);
         const sql = `
             INSERT INTO reservation (id_utilisateur, id_logement, date_debut, date_fin, statut)
             VALUES (?, ?, ?, ?, ?)
@@ -148,6 +157,7 @@ router.post("/reservation", async (req, res) => {
         res.status(201).json({
             message: "Réservation ajoutée avec succès.",
             reservationId: result.insertId,
+            statut: statut
         });
 
     } catch (error) {

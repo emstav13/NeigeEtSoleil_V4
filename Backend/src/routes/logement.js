@@ -80,6 +80,32 @@ router.post("/", upload.single("photo"), async (req, res) => {
         console.error("Erreur lors de l'insertion du logement :", error);
         res.status(500).json({ error: "Erreur lors de l'ajout du logement" });
     }
+
+    
 });
+
+// 🏠 Récupérer tous les logements pour l'admin
+router.get("/admin", async (req, res) => {
+    console.log("🔹 Route /admin/logements atteinte !");
+    try {
+        const sql = `
+            SELECT l.id_logement, l.nom_immeuble, l.adresse, l.code_postal, l.ville, 
+                   l.type_logement, l.surface_habitable, l.capacite_accueil, 
+                   l.specifite, l.photo, 
+                   u.nom AS proprietaire_nom, u.prenom AS proprietaire_prenom
+            FROM logement l
+            JOIN utilisateur u ON l.id_proprietaire = u.id_utilisateur
+            WHERE u.role = 'proprietaire'
+        `;
+        
+        const [rows] = await db.query(sql);
+        console.log("📥 Résultat SQL :", rows);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("❌ Erreur lors de la récupération des logements :", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+});
+
 
 module.exports = router;

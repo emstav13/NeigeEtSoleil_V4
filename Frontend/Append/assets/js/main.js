@@ -207,14 +207,27 @@ if (locationLogementsDiv) {
     stretchedLink.addEventListener("click", function (e) {
       e.preventDefault();
 
-      // Vérifie le rôle de l'utilisateur connecté
+      // Récupération de l'utilisateur connecté
       const user = JSON.parse(localStorage.getItem("user"));
-      if (user && user.role === "proprietaire") {
-        window.location.href = "add-habitation.html";
-      } else if (user && user.role === "client") {
-        window.location.href = "disponibilites.html";
-      } else {
+
+      if (!user) {
         alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
+        return;
+      }
+
+      // Redirection en fonction du rôle
+      switch (user.role) {
+        case "proprietaire":
+          window.location.href = "add-habitation.html";
+          break;
+        case "client":
+          window.location.href = "disponibilites.html";
+          break;
+        case "admin":
+          window.location.href = "logements_admin.html"; // 🔹 Nouvelle page pour l'admin
+          break;
+        default:
+          alert("Rôle utilisateur inconnu !");
       }
     });
   } else {
@@ -223,6 +236,7 @@ if (locationLogementsDiv) {
 } else {
   console.error("L'élément avec l'ID 'location-logements' n'existe pas !");
 }
+
 
 }
 
@@ -510,35 +524,59 @@ function handleDisponibilitesPage() {
   function handleReservation(event) {
     event.preventDefault();
     const button = event.target;
+    
     const idLogement = button.getAttribute("data-id-logement");
     const dateDebut = button.getAttribute("data-date-debut");
     const dateFin = button.getAttribute("data-date-fin");
 
-    if (!idLogement || !dateDebut || !dateFin) {
-      alert("Données de réservation manquantes !");
-      return;
+    // Récupérer l'utilisateur depuis le localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || !user.id_utilisateur) {
+        alert("Vous devez être connecté pour effectuer une réservation !");
+        return;
     }
 
-    fetch("http://localhost:3000/NeigeEtSoleil_V4/reservation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idLogement, dateDebut, dateFin }),
+    const idUtilisateur = user.id_utilisateur;
+
+    console.log("🔹 ID Utilisateur récupéré :", idUtilisateur);
+    console.log("🔹 ID Logement récupéré :", idLogement);
+    console.log("🔹 Date Début :", dateDebut);
+    console.log("🔹 Date Fin :", dateFin);
+
+    if (!idLogement || !dateDebut || !dateFin) {
+        alert("Données de réservation manquantes !");
+        return;
+    }
+
+    fetch("http://localhost:3000/NeigeEtSoleil_V4/disponibilites/reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            id_utilisateur: idUtilisateur, 
+            id_logement: idLogement, 
+            date_debut: dateDebut, 
+            date_fin: dateFin, 
+            statut: "reserve" // On envoie le statut "reserve"
+        }),
     })
-      .then((response) => {
+    .then((response) => {
         if (!response.ok) {
-          throw new Error("Erreur lors de la réservation.");
+            throw new Error("Erreur lors de la réservation.");
         }
         return response.json();
-      })
-      .then((data) => {
+    })
+    .then((data) => {
         alert("Réservation effectuée avec succès !");
         window.location.reload();
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         console.error("Erreur :", error);
         alert("Impossible d'effectuer la réservation.");
-      });
-  }
+    });
+  
+}
+
 
 
  
@@ -647,47 +685,106 @@ console.log("🟢 exécution main.js lignes 632");
 /******************* les activités***********************/
 function handleActivitesPage() {
   console.log("📌 handleActivitesPage() est bien exécutée !");
-  
+
   async function fetchAndDisplayActivites(url, container) {
-      console.log(`📡 Tentative de récupération des activités depuis ${url}...`);
+    console.log(`📡 Tentative de récupération des activités depuis ${url}...`);
 
-      try {
-          const response = await fetch(url);
-          console.log(`📡 Requête envoyée vers ${url}`);
-
-          if (!response.ok) {
-              throw new Error(`Erreur API : ${response.statusText}`);
-          }
-
-          const activites = await response.json();
-          console.log("📥 Réponse API reçue :", activites);
-
-          if (activites.length === 0) {
-              container.innerHTML = `<div class="alert alert-warning text-center">Aucune activité disponible.</div>`;
-              return;
-          }
-
-          container.innerHTML = activites.map((activite) => `
-              <div class="col-md-6 col-lg-4">
-                  <div class="card">
-                      <img src="http://localhost:3000/${activite.image}" class="card-img-top">
-                      <div class="card-body">
-                          <h5 class="card-title">${activite.nom_activite}</h5>
-                          <button class="btn btn-primary reserver-btn" data-id="${activite.id_activite}">Réserver</button>
-                      </div>
-                  </div>
-              </div>`).join("");
-
-      } catch (error) {
-          console.error("❌ Erreur lors du chargement des activités :", error);
-          container.innerHTML = `<div class="alert alert-danger text-center">Impossible de charger les activités.</div>`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Erreur API : ${response.statusText}`);
       }
+
+      const activites = await response.json();
+      console.log("📥 Réponse API reçue :", activites);
+
+      if (activites.length === 0) {
+        container.innerHTML = `<div class="alert alert-warning text-center">Aucune activité disponible.</div>`;
+        return;
+      }
+
+      container.innerHTML = activites
+        .map((activite) => `
+          <div class="col-md-6 col-lg-4">
+              <div class="card activite-card">
+                  <img src="http://localhost:3000/${activite.image}" class="card-img-top">
+                  <div class="card-body">
+                      <h5 class="card-title">${activite.nom_activite}</h5>
+                      <button class="btn btn-info voir-details" data-id="${activite.id_activite}">Voir</button>
+                      <div class="activite-details" id="details-${activite.id_activite}" style="display: none;">
+                          <p><strong>Station :</strong> ${activite.station_nom || "Non spécifié"}</p>
+                          <p><strong>Prix :</strong> ${activite.prix ? activite.prix + " €" : "Non défini"}</p>
+                          ${activite.type_sport ? `<p><strong>Type Sport :</strong> ${activite.type_sport}</p>` : ""}
+                          ${activite.niveau_difficulte ? `<p><strong>Niveau :</strong> ${activite.niveau_difficulte}</p>` : ""}
+                          ${activite.public_cible ? `<p><strong>Public :</strong> ${activite.public_cible}</p>` : ""}
+                          ${activite.duree ? `<p><strong>Durée :</strong> ${activite.duree} min</p>` : ""}
+                          ${activite.type_detente ? `<p><strong>Type :</strong> ${activite.type_detente}</p>` : ""}
+                          ${activite.description ? `<p><strong>Description :</strong> ${activite.description}</p>` : ""}
+                      </div>
+                      <button class="btn btn-primary reserver-btn" data-id="${activite.id_activite}">Réserver</button>
+                  </div>
+              </div>
+          </div>
+        `).join("");
+
+      //  un event listener aux boutons "Voir"
+      document.querySelectorAll(".voir-details").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          const activiteId = event.target.dataset.id;
+          const detailsDiv = document.getElementById(`details-${activiteId}`);
+          detailsDiv.style.display = detailsDiv.style.display === "none" ? "block" : "none";
+        });
+      });
+
+    } catch (error) {
+      console.error("❌ Erreur lors du chargement des activités :", error);
+      container.innerHTML = `<div class="alert alert-danger text-center">Impossible de charger les activités.</div>`;
+    }
   }
 
   fetchAndDisplayActivites("http://localhost:3000/NeigeEtSoleil_V4/activites/sportives", document.getElementById("sportContainer"));
   fetchAndDisplayActivites("http://localhost:3000/NeigeEtSoleil_V4/activites/culturelles", document.getElementById("culturelleContainer"));
   fetchAndDisplayActivites("http://localhost:3000/NeigeEtSoleil_V4/activites/detente", document.getElementById("detenteContainer"));
+
+  // 🔴  ici la gestion de la réservation activité 
+  document.addEventListener("click", async (event) => {
+    if (event.target.classList.contains("reserver-btn")) {
+        const idActivite = event.target.dataset.id;
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (!user) {
+            alert("Vous devez être connecté pour réserver une activité.");
+            return;
+        }
+
+        const dateReservation = prompt("Entrez la date de réservation (YYYY-MM-DD) :");
+        if (!dateReservation) {
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/activites/reserver", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id_utilisateur: user.id_utilisateur,
+                    id_activite: idActivite,
+                    date_reservation: dateReservation
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+            alert("Réservation effectuée avec succès !");
+        } catch (error) {
+            console.error("❌ Erreur :", error);
+            alert("Impossible d'effectuer la réservation.");
+        }
+    }
+  });
 }
+
+
 
 
 console.log("🟢 exécution main.js lignes 680 tout just avant la fonction initializePageScripts");

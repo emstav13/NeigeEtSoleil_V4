@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Logements - Admin</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <script defer src="../js/logements_admin.js"></script>
+</head>
+<body data-page="logements">
+
+    <div class="container mt-4">
+        <h2 class="text-center">Gestion des Logements</h2>
+        <button class="btn btn-success mb-3" id="ajouterLogement">➕ Ajouter un logement</button>
+
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom Immeuble</th>
+                    <th>Adresse</th>
+                    <th>Ville</th>
+                    <th>Type</th>
+                    <th>Surface</th>
+                    <th>Capacité</th>
+                    <th>Propriétaire</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="logementsTable">
+                <!-- Contenu injecté dynamiquement -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/Frontend/Append/assets/js/admin.js"></script>
+
+</body>
+</html>

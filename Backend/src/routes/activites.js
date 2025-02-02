@@ -2,32 +2,23 @@ const express = require("express");
 const router = express.Router();
 const db = require("../utils/dbConnection");
 
-// 💆 4️⃣ Récupérer uniquement les activités de détente
-router.get("/detente", async (req, res) => {
-    try {
-        const [rows] = await db.query(`
-            SELECT ag.id_activite, ag.nom_activite, ag.id_station, ag.image, 
-                   d.type_detente, d.prix_entre
-            FROM activite_detente d
-            JOIN activite_generale ag ON d.id_activite = ag.id_activite
-        `);
-        res.status(200).json(rows);
-    } catch (error) {
-        console.error("❌ Erreur lors de la récupération des activités de détente :", error);
-        res.status(500).json({ error: "Erreur interne du serveur." });
-    }
-});
-
-
 
 // 🏋️‍♂️ 2️⃣ Récupérer uniquement les activités sportives
 router.get("/sportives", async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT ag.id_activite, ag.nom_activite, ag.id_station, ag.image, 
-                   s.type_sport, s.niveau_difficulte
+            SELECT 
+                ag.id_activite, 
+                ag.nom_activite, 
+                ag.image, 
+                st.nom AS station_nom,  -- ✅ Récupération du nom de la station
+                s.type_sport, 
+                s.niveau_difficulte, 
+                t.prix  -- ✅ Récupération du prix
             FROM activite_sportive s
             JOIN activite_generale ag ON s.id_activite = ag.id_activite
+            LEFT JOIN station st ON ag.id_station = st.id_station  -- ✅ Jointure pour récupérer le nom de la station
+            LEFT JOIN tarif t ON ag.id_activite = t.id_activite  -- ✅ Jointure pour récupérer le prix
         `);
         res.status(200).json(rows);
     } catch (error) {
@@ -37,14 +28,19 @@ router.get("/sportives", async (req, res) => {
 });
 
 
+
 // 🎭 3️⃣ Récupérer uniquement les activités culturelles
 router.get("/culturelles", async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT ag.id_activite, ag.nom_activite, ag.id_station, ag.image, 
-                   c.duree, c.public_cible
+            SELECT ag.id_activite, ag.nom_activite, ag.image, 
+                   c.duree, c.public_cible, 
+                   s.nom AS station_nom,  -- 🔹 Ajout du nom de la station
+                   t.prix                 -- 🔹 Ajout du prix
             FROM activite_culturelle c
             JOIN activite_generale ag ON c.id_activite = ag.id_activite
+            LEFT JOIN station s ON ag.id_station = s.id_station  -- 🔹 Associer avec la station
+            LEFT JOIN tarif t ON ag.id_activite = t.id_activite  -- 🔹 Associer avec les tarifs
         `);
         res.status(200).json(rows);
     } catch (error) {
@@ -54,15 +50,26 @@ router.get("/culturelles", async (req, res) => {
 });
 
 
+
 // 💆 4️⃣ Récupérer uniquement les activités de détente
 router.get("/detente", async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT ag.id_activite, ag.nom_activite, ag.id_station, ag.image, 
-                   d.type_detente, d.prix_entre
-            FROM activite_detente d
-            JOIN activite_generale ag ON d.id_activite = ag.id_activite
-        `);
+        const sql = `
+                        SELECT 
+    ad.id_activite, 
+    ag.nom_activite,   
+    ad.type_detente, 
+    ad.description, 
+    ag.image,  
+    s.nom AS station_nom,
+    t.prix AS prix
+FROM activite_detente ad
+JOIN activite_generale ag ON ad.id_activite = ag.id_activite  
+LEFT JOIN station s ON ag.id_station = s.id_station
+LEFT JOIN tarif t ON ad.id_activite = t.id_activite
+
+   `;
+        const [rows] = await db.query(sql);
         res.status(200).json(rows);
     } catch (error) {
         console.error("❌ Erreur lors de la récupération des activités de détente :", error);
