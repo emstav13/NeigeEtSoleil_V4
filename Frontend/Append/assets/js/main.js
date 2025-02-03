@@ -181,6 +181,8 @@ function handleIndexPage() {
           if (data.utilisateur) {
             alert(`Bienvenue ${data.utilisateur.nom} ${data.utilisateur.prenom} !`);
             localStorage.setItem("user", JSON.stringify(data.utilisateur));
+            localStorage.setItem("userRole", data.utilisateur.role);
+
             window.location.href = "index.html";
           } else {
             throw new Error("Utilisateur non trouvé");
@@ -236,6 +238,26 @@ if (locationLogementsDiv) {
 } else {
   console.error("L'élément avec l'ID 'location-logements' n'existe pas !");
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const activitesLink = document.getElementById("activitesLink");
+
+  if (!activitesLink) {
+      console.error("❌ L'élément #activitesLink est introuvable !");
+      return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("user")); // Récupération de l'utilisateur
+  const userRole = user ? user.role : null; // Récupération du rôle utilisateur
+
+  console.log("🎯 Rôle détecté :", userRole); // ✅ Vérifie en console
+
+  if (userRole === "admin") {
+      activitesLink.setAttribute("href", "activites_admin.html");
+  } else {
+      activitesLink.setAttribute("href", "activites.html");
+  }
+});
 
 
 }

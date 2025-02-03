@@ -1,24 +1,24 @@
 package controleur;
 
 public class Detente extends Activite {
-    private String typeDetente;
-    private double prixEntree;
+    private String typeDetente; // Type de détente (ex: Spa, Balade)
+    private double prix; // ✅ Renommé depuis `prixEntree` pour uniformisation
 
-    // Constructeur avec ID
-    public Detente(int idActivite, String nomActivite, int idStation, String typeDetente, double prixEntree) {
+    // ✅ Constructeur avec ID (Utilisé pour récupérer une activité existante)
+    public Detente(int idActivite, String nomActivite, int idStation, String typeDetente, double prix) {
         super(idActivite, nomActivite, idStation);
         this.typeDetente = typeDetente;
-        this.prixEntree = prixEntree;
+        this.prix = prix;
     }
 
-    // Constructeur sans ID (pour insertion)
-    public Detente(String nomActivite, int idStation, String typeDetente, double prixEntree) {
+    // ✅ Constructeur sans ID (Utilisé pour ajouter une nouvelle activité)
+    public Detente(String nomActivite, int idStation, String typeDetente, double prix) {
         super(nomActivite, idStation);
         this.typeDetente = typeDetente;
-        this.prixEntree = prixEntree;
+        this.prix = prix;
     }
 
-    // Getters et Setters
+    // ✅ Getters et Setters
     public String getTypeDetente() {
         return typeDetente;
     }
@@ -27,12 +27,12 @@ public class Detente extends Activite {
         this.typeDetente = typeDetente;
     }
 
-    public double getPrixEntree() {
-        return prixEntree;
+    public double getPrix() {
+        return prix;
     }
 
-    public void setPrixEntree(double prixEntree) {
-        this.prixEntree = prixEntree;
+    public void setPrix(double prix) {
+        this.prix = prix;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Detente extends Activite {
                 ", nomActivite='" + getNomActivite() + '\'' +
                 ", idStation=" + getIdStation() +
                 ", typeDetente='" + typeDetente + '\'' +
-                ", prixEntree=" + prixEntree +
+                ", prix=" + prix +
                 '}';
     }
 }

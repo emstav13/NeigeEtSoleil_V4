@@ -2,22 +2,34 @@ package controleur;
 
 public class Tarif {
     private int idTarif;
-    private int idLogement;
+    private Integer idLogement; // Peut être null si c'est une activité
+    private Integer idActivite; // Peut être null si c'est un logement
     private int idSaison;
     private double prix;
 
     // Constructeur avec ID
-    public Tarif(int idTarif, int idLogement, int idSaison, double prix) {
+    public Tarif(int idTarif, Integer idLogement, Integer idActivite, int idSaison, double prix) {
         this.idTarif = idTarif;
         this.idLogement = idLogement;
+        this.idActivite = idActivite;
         this.idSaison = idSaison;
         this.prix = prix;
     }
 
-    // Constructeur sans ID (pour insertion)
-    public Tarif(int idLogement, int idSaison, double prix) {
-        this.idTarif = 0; // Par défaut pour les nouvelles insertions
+    // Constructeur pour logement
+    public Tarif(Integer idLogement, int idSaison, double prix) {
+        this.idTarif = 0;
         this.idLogement = idLogement;
+        this.idActivite = null;
+        this.idSaison = idSaison;
+        this.prix = prix;
+    }
+
+    // Constructeur pour activité
+    public Tarif(int idActivite, int idSaison, double prix) {
+        this.idTarif = 0;
+        this.idLogement = null;
+        this.idActivite = idActivite;
         this.idSaison = idSaison;
         this.prix = prix;
     }
@@ -27,31 +39,19 @@ public class Tarif {
         return idTarif;
     }
 
-    public void setIdTarif(int idTarif) {
-        this.idTarif = idTarif;
-    }
-
-    public int getIdLogement() {
+    public Integer getIdLogement() {
         return idLogement;
     }
 
-    public void setIdLogement(int idLogement) {
-        this.idLogement = idLogement;
+    public Integer getIdActivite() {
+        return idActivite;
     }
 
     public int getIdSaison() {
         return idSaison;
     }
 
-    public void setIdSaison(int idSaison) {
-        this.idSaison = idSaison;
-    }
-
     public double getPrix() {
         return prix;
-    }
-
-    public void setPrix(double prix) {
-        this.prix = prix;
     }
 }

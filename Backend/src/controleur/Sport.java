@@ -1,22 +1,27 @@
 package controleur;
 
 public class Sport extends Activite {
-    private String typeSport; // Type de sport (ex: Football, Tennis)
+    private String typeSport; // Type de sport (ex: Escalade, Ski)
     private String niveauDifficulte; // Débutant, Intermédiaire, Avancé
+    private double prix; // ✅ Ajout du prix de l'activité
 
-    public Sport(int idActivite, String nomActivite, int idStation, String typeSport, String niveauDifficulte) {
+    // ✅ Constructeur avec ID (Utilisé pour récupérer une activité existante)
+    public Sport(int idActivite, String nomActivite, int idStation, String typeSport, String niveauDifficulte, double prix) {
         super(idActivite, nomActivite, idStation);
         this.typeSport = typeSport;
         this.niveauDifficulte = niveauDifficulte;
+        this.prix = prix;
     }
 
-    public Sport(String nomActivite, int idStation, String typeSport, String niveauDifficulte) {
+    // ✅ Constructeur sans ID (Utilisé pour ajouter une nouvelle activité)
+    public Sport(String nomActivite, int idStation, String typeSport, String niveauDifficulte, double prix) {
         super(nomActivite, idStation);
         this.typeSport = typeSport;
         this.niveauDifficulte = niveauDifficulte;
+        this.prix = prix;
     }
 
-    // Getters et Setters
+    // ✅ Getters et Setters
     public String getTypeSport() {
         return typeSport;
     }
@@ -33,6 +38,14 @@ public class Sport extends Activite {
         this.niveauDifficulte = niveauDifficulte;
     }
 
+    public double getPrix() {
+        return prix;
+    }
+
+    public void setPrix(double prix) {
+        this.prix = prix;
+    }
+
     @Override
     public String toString() {
         return "Sport{" +
@@ -41,6 +54,7 @@ public class Sport extends Activite {
                 ", idStation=" + getIdStation() +
                 ", typeSport='" + typeSport + '\'' +
                 ", niveauDifficulte='" + niveauDifficulte + '\'' +
+                ", prix=" + prix +
                 '}';
     }
 }

@@ -472,58 +472,73 @@ public static void updateLogement(Logement unLogement) {
         executerRequete(requete);
     }
     
-    // *********************** GESTION DES TARIFS *************************
+   // *********************** GESTION DES TARIFS *************************
 
-    // Méthode pour insérer un tarif
-    public static void insertTarif(Tarif unTarif) {
-        String requete = "INSERT INTO Tarif VALUES (null, "
-            + unTarif.getIdLogement() + ", "
-            + unTarif.getIdSaison() + ", "
-            + unTarif.getPrix() + ");";
-        executerRequete(requete);
+// ✅ Méthode pour insérer un tarif (logement ou activité)
+public static void insertTarif(Tarif unTarif) {
+    String requete = "INSERT INTO Tarif VALUES (null, ";
+
+    // ✅ Vérification : Logement ou Activité
+    if (unTarif.getIdLogement() != null) {
+        requete += unTarif.getIdLogement() + ", NULL, "; // Si c'est un logement
+    } else {
+        requete += "NULL, " + unTarif.getIdActivite() + ", "; // Si c'est une activité
     }
 
-    // Méthode pour récupérer tous les tarifs
-    public static ArrayList<Tarif> selectAllTarifs() {
-        ArrayList<Tarif> lesTarifs = new ArrayList<>();
-        String requete = "SELECT * FROM Tarif;";
-        try {
-            uneConnexion.seConnecter();
-            Statement unStat = uneConnexion.getMaConnexion().createStatement();
-            ResultSet lesResultats = unStat.executeQuery(requete);
-            while (lesResultats.next()) {
-                Tarif unTarif = new Tarif(
-                    lesResultats.getInt("id_tarif"),
-                    lesResultats.getInt("id_logement"),
-                    lesResultats.getInt("id_saison"),
-                    lesResultats.getDouble("prix")
-                );
-                lesTarifs.add(unTarif);
-            }
-            unStat.close();
-            uneConnexion.seDeconnecter();
-        } catch (SQLException exp) {
-            System.out.println("Erreur d'exécution de la requête : " + requete);
-            exp.printStackTrace();
+    requete += unTarif.getIdSaison() + ", " + unTarif.getPrix() + ");";
+    executerRequete(requete);
+}
+
+// ✅ Méthode pour récupérer tous les tarifs (logement et activité)
+public static ArrayList<Tarif> selectAllTarifs() {
+    ArrayList<Tarif> lesTarifs = new ArrayList<>();
+    String requete = "SELECT * FROM Tarif;";
+    try {
+        uneConnexion.seConnecter();
+        Statement unStat = uneConnexion.getMaConnexion().createStatement();
+        ResultSet lesResultats = unStat.executeQuery(requete);
+        while (lesResultats.next()) {
+            Tarif unTarif = new Tarif(
+                lesResultats.getInt("id_tarif"),
+                lesResultats.getObject("id_logement") != null ? lesResultats.getInt("id_logement") : null, // ✅ Gestion NULL
+                lesResultats.getObject("id_activite") != null ? lesResultats.getInt("id_activite") : null, // ✅ Gestion NULL
+                lesResultats.getInt("id_saison"),
+                lesResultats.getDouble("prix")
+            );
+            lesTarifs.add(unTarif);
         }
-        return lesTarifs;
+        unStat.close();
+        uneConnexion.seDeconnecter();
+    } catch (SQLException exp) {
+        System.out.println("Erreur d'exécution de la requête : " + requete);
+        exp.printStackTrace();
+    }
+    return lesTarifs;
+}
+
+// ✅ Méthode pour supprimer un tarif
+public static void deleteTarif(int idTarif) {
+    String requete = "DELETE FROM Tarif WHERE id_tarif = " + idTarif + ";";
+    executerRequete(requete);
+}
+
+// ✅ Méthode pour mettre à jour un tarif
+public static void updateTarif(Tarif unTarif) {
+    String requete = "UPDATE Tarif SET ";
+
+    // ✅ Vérification : Logement ou Activité
+    if (unTarif.getIdLogement() != null) {
+        requete += "id_logement = " + unTarif.getIdLogement() + ", id_activite = NULL, ";
+    } else {
+        requete += "id_logement = NULL, id_activite = " + unTarif.getIdActivite() + ", ";
     }
 
-    // Méthode pour supprimer un tarif
-    public static void deleteTarif(int idTarif) {
-        String requete = "DELETE FROM Tarif WHERE id_tarif = " + idTarif + ";";
-        executerRequete(requete);
-    }
+    requete += "id_saison = " + unTarif.getIdSaison() + ", prix = " + unTarif.getPrix();
+    requete += " WHERE id_tarif = " + unTarif.getIdTarif() + ";";
+    
+    executerRequete(requete);
+}
 
-    // Méthode pour mettre à jour un tarif
-    public static void updateTarif(Tarif unTarif) {
-        String requete = "UPDATE Tarif SET "
-            + "id_logement = " + unTarif.getIdLogement() + ", "
-            + "id_saison = " + unTarif.getIdSaison() + ", "
-            + "prix = " + unTarif.getPrix() + " "
-            + "WHERE id_tarif = " + unTarif.getIdTarif() + ";";
-        executerRequete(requete);
-    }
     
     // *********************** GESTION DES RÉSERVATIONS *************************
 
@@ -633,17 +648,17 @@ public static void updateLogement(Logement unLogement) {
     }
 
     	
-    // *********************** GESTION DES ACTIVITÉS *************************
+   // *********************** GESTION DES ACTIVITÉS *************************
 
-// // 🟢 Insérer une activité sportive
+// 🟢 Insérer une activité sportive avec son prix
 public static void insertSport(Sport uneActivite) throws SQLException {
     String requeteGenerale = "INSERT INTO activite_generale VALUES (null, '"
         + uneActivite.getNomActivite() + "', " + uneActivite.getIdStation() + ");";
-    
-    int idActivite = executerRequeteAvecRetourID(requeteGenerale); // Récupère l'ID inséré
+
+    int idActivite = executerRequeteAvecRetourID(requeteGenerale);
 
     if (idActivite == -1) {
-        System.out.println("❌ Erreur : l'ID de l'activité sportive n'a pas pu être récupéré.");
+        System.out.println("❌ Erreur : ID activité sportive non récupéré.");
         return;
     }
 
@@ -651,17 +666,22 @@ public static void insertSport(Sport uneActivite) throws SQLException {
         + uneActivite.getTypeSport() + "', '" + uneActivite.getNiveauDifficulte() + "');";
 
     executerRequete(requeteSpecifique);
+
+    // ✅ Ajout du prix dans la table `tarif`
+    String requeteTarif = "INSERT INTO tarif (id_activite, id_saison, prix) VALUES ("
+        + idActivite + ", 1, " + uneActivite.getPrix() + ");"; // Saison par défaut à 1
+    executerRequete(requeteTarif);
 }
 
-// 🟢 Insérer une activité culturelle
+// 🟢 Insérer une activité culturelle avec son prix
 public static void insertCulturelle(Culturelle uneActivite) throws SQLException {
     String requeteGenerale = "INSERT INTO activite_generale VALUES (null, '"
         + uneActivite.getNomActivite() + "', " + uneActivite.getIdStation() + ");";
-    
+
     int idActivite = executerRequeteAvecRetourID(requeteGenerale);
 
     if (idActivite == -1) {
-        System.out.println("❌ Erreur : l'ID de l'activité culturelle n'a pas pu être récupéré.");
+        System.out.println("❌ Erreur : ID activité culturelle non récupéré.");
         return;
     }
 
@@ -669,9 +689,14 @@ public static void insertCulturelle(Culturelle uneActivite) throws SQLException 
         + uneActivite.getDuree() + ", '" + uneActivite.getPublicCible() + "');";
 
     executerRequete(requeteSpecifique);
+
+    // ✅ Ajout du prix dans la table `tarif`
+    String requeteTarif = "INSERT INTO tarif (id_activite, id_saison, prix) VALUES ("
+        + idActivite + ", 1, " + uneActivite.getPrix() + ");"; // Saison par défaut à 1
+    executerRequete(requeteTarif);
 }
 
-// 🟢 Insérer une activité détente
+// 🟢 Insérer une activité détente avec son prix
 public static void insertDetente(Detente uneActivite) throws SQLException {
     String requeteGenerale = "INSERT INTO activite_generale VALUES (null, '"
         + uneActivite.getNomActivite() + "', " + uneActivite.getIdStation() + ");";
@@ -679,24 +704,31 @@ public static void insertDetente(Detente uneActivite) throws SQLException {
     int idActivite = executerRequeteAvecRetourID(requeteGenerale);
 
     if (idActivite == -1) {
-        System.out.println("❌ Erreur : l'ID de l'activité de détente n'a pas pu être récupéré.");
+        System.out.println("❌ Erreur : ID activité détente non récupéré.");
         return;
     }
 
     String requeteSpecifique = "INSERT INTO activite_detente VALUES (" + idActivite + ", '"
-        + uneActivite.getTypeDetente() + "', " + uneActivite.getPrixEntree() + ");";
+        + uneActivite.getTypeDetente() + "');";
 
     executerRequete(requeteSpecifique);
+
+    // ✅ Ajout du prix dans la table `tarif`
+    String requeteTarif = "INSERT INTO tarif (id_activite, id_saison, prix) VALUES ("
+        + idActivite + ", 1, " + uneActivite.getPrix() + ");"; // Saison par défaut à 1
+    executerRequete(requeteTarif);
 }
 
-
-// 🔍 Récupérer toutes les activités (avec leur type spécifique)
+// 🔍 Récupérer toutes les activités avec leurs prix
 public static ArrayList<Activite> selectAllActivites() {
     ArrayList<Activite> lesActivites = new ArrayList<>();
-    String requete = "SELECT * FROM activite_generale ag "
-                    + "LEFT JOIN activite_sportive sp ON ag.id_activite = sp.id_activite "
-                    + "LEFT JOIN activite_culturelle cu ON ag.id_activite = cu.id_activite "
-                    + "LEFT JOIN activite_detente de ON ag.id_activite = de.id_activite;";
+    String requete = "SELECT ag.*, sp.type_sport, sp.niveau_difficulte, cu.duree, cu.public_cible, "
+                   + "de.type_detente, t.prix "
+                   + "FROM activite_generale ag "
+                   + "LEFT JOIN activite_sportive sp ON ag.id_activite = sp.id_activite "
+                   + "LEFT JOIN activite_culturelle cu ON ag.id_activite = cu.id_activite "
+                   + "LEFT JOIN activite_detente de ON ag.id_activite = de.id_activite "
+                   + "LEFT JOIN tarif t ON ag.id_activite = t.id_activite;";
 
     try {
         uneConnexion.seConnecter();
@@ -707,26 +739,29 @@ public static ArrayList<Activite> selectAllActivites() {
             int idActivite = lesResultats.getInt("id_activite");
             String nomActivite = lesResultats.getString("nom_activite");
             int idStation = lesResultats.getInt("id_station");
+            double prix = lesResultats.getDouble("prix");
 
             if (lesResultats.getString("type_sport") != null) {
                 Sport uneActivite = new Sport(
                     idActivite, nomActivite, idStation,
                     lesResultats.getString("type_sport"),
-                    lesResultats.getString("niveau_difficulte")
+                    lesResultats.getString("niveau_difficulte"),
+                    prix
                 );
                 lesActivites.add(uneActivite);
             } else if (lesResultats.getInt("duree") != 0) {
                 Culturelle uneActivite = new Culturelle(
                     idActivite, nomActivite, idStation,
                     lesResultats.getInt("duree"),
-                    lesResultats.getString("public_cible")
+                    lesResultats.getString("public_cible"),
+                    prix
                 );
                 lesActivites.add(uneActivite);
             } else if (lesResultats.getString("type_detente") != null) {
                 Detente uneActivite = new Detente(
                     idActivite, nomActivite, idStation,
                     lesResultats.getString("type_detente"),
-                    lesResultats.getDouble("prix_entree")
+                    prix
                 );
                 lesActivites.add(uneActivite);
             }
@@ -741,19 +776,13 @@ public static ArrayList<Activite> selectAllActivites() {
     return lesActivites;
 }
 
-// 🛑 Supprimer une activité (supprime automatiquement les sous-classes grâce au DELETE CASCADE)
-public static void deleteActivite(int idActivite) {
-    String requete = "DELETE FROM activite_generale WHERE id_activite = " + idActivite + ";";
-    executerRequete(requete);
-}
-
-// 🔄 Mettre à jour une activité
+// 🔄 Mettre à jour une activité avec son prix
 public static void updateActivite(Activite uneActivite) {
     String requete = "UPDATE activite_generale SET "
         + "nom_activite = '" + uneActivite.getNomActivite() + "', "
         + "id_station = " + uneActivite.getIdStation() + " "
         + "WHERE id_activite = " + uneActivite.getIdActivite() + ";";
-    
+
     executerRequete(requete);
 
     if (uneActivite instanceof Sport) {
@@ -773,12 +802,20 @@ public static void updateActivite(Activite uneActivite) {
     } else if (uneActivite instanceof Detente) {
         Detente detente = (Detente) uneActivite;
         String requeteDetente = "UPDATE activite_detente SET "
-            + "type_detente = '" + detente.getTypeDetente() + "', "
-            + "prix_entree = " + detente.getPrixEntree() + " "
+            + "type_detente = '" + detente.getTypeDetente() + "' "
             + "WHERE id_activite = " + detente.getIdActivite() + ";";
         executerRequete(requeteDetente);
     }
+
+    // ✅ Mise à jour du tarif
+    String requeteTarif = "UPDATE tarif SET prix = " + ((uneActivite instanceof Sport) ? ((Sport) uneActivite).getPrix()
+        : (uneActivite instanceof Culturelle) ? ((Culturelle) uneActivite).getPrix()
+        : ((Detente) uneActivite).getPrix())
+        + " WHERE id_activite = " + uneActivite.getIdActivite() + ";";
+    
+    executerRequete(requeteTarif);
 }
+
 
 
     // *********************** GESTION DES ÉQUIPEMENTS *************************
