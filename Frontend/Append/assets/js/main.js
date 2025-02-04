@@ -149,9 +149,7 @@ console.log("🟢 exécution main.js lignes 110");
     initSwiper();
   }
 
-  // Appel global
-  document.addEventListener("DOMContentLoaded", initializeGlobals);
-})();
+
 
 /**********INDEX.HTML********************** */
 function handleIndexPage() {
@@ -385,48 +383,57 @@ function handleAddHabitationPage() {
         });
     });
   }
-  
+};
   console.log("🟢 exécution main.js lignes 348");
 /*************************inscription.html*********************************** */
 
 function handleInscriptionPage() {
-  console.log("handleInscriptionPage est exécutée");
+  console.log("✅ handleInscriptionPage est exécutée");
+
   const formInscription = document.getElementById("formInscription");
 
   if (formInscription) {
-    formInscription.addEventListener("submit", (e) => {
-      e.preventDefault();
+      formInscription.addEventListener("submit", async (e) => {
+          e.preventDefault(); // Empêche le rechargement de la page
 
-      const formData = {
-        nom: document.getElementById("nom").value,
-        prenom: document.getElementById("prenom").value,
-        email: document.getElementById("email").value,
-        motDePasse: document.getElementById("mot_de_passe").value,
-        role: document.getElementById("role").value,
-      };
+          // Récupération des valeurs du formulaire
+          const formData = {
+              nom: document.getElementById("nom").value.trim(),
+              prenom: document.getElementById("prenom").value.trim(),
+              email: document.getElementById("email").value.trim(),
+              motDePasse: document.getElementById("mot_de_passe").value.trim(),
+              role: document.getElementById("role").value
+          };
 
-      fetch("http://localhost:3000/NeigeEtSoleil_V4/inscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-        .then((response) => {
-          if (!response.ok)
-            throw new Error(`HTTP error! status: ${response.status}`);
-          return response.json();
-        })
-        .then(() => {
-          alert("Inscription réussie !");
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.error("Erreur lors de l'inscription :", error.message);
-          alert(`Une erreur est survenue : ${error.message}`);
-        });
-    });
+          console.log("📤 Données envoyées :", formData);
+
+          try {
+              const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/inscription", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(formData)
+              });
+
+              if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`);
+
+              const result = await response.json();
+              console.log("✅ Réponse du serveur :", result);
+
+              alert("Inscription réussie !");
+              window.location.reload(); // Recharger la page après l'inscription
+          } catch (error) {
+              console.error("❌ Erreur lors de l'inscription :", error.message);
+              alert(`Une erreur est survenue : ${error.message}`);
+          }
+      });
+  } else {
+      console.warn("⚠️ Le formulaire d'inscription n'a pas été trouvé !");
   }
 }
-};
+
+// Exécuter la fonction après le chargement du DOM
+document.addEventListener("DOMContentLoaded", handleInscriptionPage);
+
 /****************Disponibilites************************* */
 
 function handleDisponibilitesPage() {
@@ -676,32 +683,36 @@ if (btnMesReservations) {
 }
 
 
-  // 🛑 Annulation de réservation
-  async function handleCancelReservation(event) {
-    const button = event.target;
-    const idReservation = button.getAttribute("data-id-reservation");
+  // 🛑 Annulation de réservation avec confirmation
+async function handleCancelReservation(event) {
+  const button = event.target;
+  const idReservation = button.getAttribute("data-id-reservation");
 
-    console.log("ID de la réservation à annuler :", idReservation);
+  console.log("ID de la réservation à annuler :", idReservation);
 
-    try {
-        const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/annuler-reservation/${idReservation}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" }
-        });
+  // Afficher une boîte de confirmation
+  const confirmation = confirm("Êtes-vous sûr de vouloir annuler cette réservation ?");
+  if (!confirmation) {
+      return; // Si l'utilisateur annule, on arrête l'exécution
+  }
 
-        if (!response.ok) {
-            throw new Error("Erreur lors de l'annulation.");
-        }
+  try {
+      const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/annuler-reservation/${idReservation}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+      });
 
-        alert("Réservation annulée avec succès !");
-        button.closest(".card").remove();
-    } catch (error) {
-        console.error("Erreur lors de l'annulation :", error.message);
-        alert("Impossible d'annuler la réservation.");
-    }
+      if (!response.ok) {
+          throw new Error("Erreur lors de l'annulation.");
+      }
+
+      alert("Réservation annulée avec succès !");
+      button.closest(".card").remove();
+  } catch (error) {
+      console.error("Erreur lors de l'annulation :", error.message);
+      alert("Impossible d'annuler la réservation.");
+  }
 }
-
-console.log("🟢 exécution main.js lignes 632");
 }
 
 /******************* les activités***********************/
@@ -845,5 +856,8 @@ initializePageScripts(); // 🔥 Force l'exécution immédiate
 console.log("🟢 exécution main.js lignes 709 et fin de main.js");
 
 
-console.log("Appel direct de handleAddHabitationPage");
-handleAddHabitationPage();
+
+
+  // Appel global
+  document.addEventListener("DOMContentLoaded", initializeGlobals);
+})();

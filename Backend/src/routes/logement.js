@@ -114,7 +114,7 @@ router.get("/:id", async (req, res) => {
 // 🏠 Ajouter un logement (Spécifique pour l'admin)
 router.post("/admin", upload.single("photo"), async (req, res) => {
     const {
-        idProprietaire, // Cet ID doit être fourni dans la requête
+        idProprietaire, 
         nomImmeuble,
         adresse,
         codePostal,
@@ -125,7 +125,7 @@ router.post("/admin", upload.single("photo"), async (req, res) => {
         specifite,
     } = req.body;
 
-    // Vérifie si le fichier a été correctement téléchargé
+    
     const photoPath = req.file ? `assets/img/habitation/${req.file.filename}` : null;
 
     const sql = `
@@ -208,13 +208,13 @@ router.put("/:id", async (req, res) => {
 
     const { id } = req.params;
     const {
-        nom_immeuble, // 👈 Correction ici
+        nom_immeuble, 
         adresse,
         code_postal,
         ville,
         type_logement,
-        surface_habitable, // 👈 Correction ici
-        capacite_accueil, // 👈 Correction ici
+        surface_habitable, 
+        capacite_accueil, 
         specifite
     } = req.body;
 

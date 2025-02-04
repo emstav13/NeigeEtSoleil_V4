@@ -1,53 +1,37 @@
 const express = require("express");
 const mysql = require("mysql2"); // Assure-toi que mysql2 est installé
+const bcrypt = require("bcrypt"); // 📌 Pour le hachage du mot de passe
 const router = express.Router();
-
-// Configuration de la connexion à la base de données
-const db = mysql.createConnection({
-    host: "localhost",
-    user: "root", // Remplace par ton utilisateur MySQL
-    password: "0000", // Remplace par ton mot de passe MySQL
-    database: "NeigeEtSoleil_V4", // Nom de ta base de données
-    port: 3307, // Remplace par le port correct si différent        
-});
+const db = require("../utils/dbConnection"); // 📌 Utilisation de la connexion partagée
 
 // Route d'inscription
 router.post("/", async (req, res) => {
-    const userData = req.body; // Récupère les données envoyées par le formulaire
-    console.log("Données reçues du formulaire :", userData);
+    const { nom, prenom, email, motDePasse, role } = req.body;
+    console.log("Données reçues du formulaire :", req.body);
 
-    // Vérification des données côté serveur
-    if (!userData.nom || !userData.prenom || !userData.email || !userData.motDePasse || !userData.role) {
-        console.error("Erreur : Tous les champs sont obligatoires.");
+    if (!nom || !prenom || !email || !motDePasse || !role) {
         return res.status(400).json({ message: "Tous les champs sont obligatoires." });
     }
 
     try {
-        // Insère les données dans la base de données
-        const sql = `
-            INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role, date_creation)
-            VALUES (?, ?, ?, ?, ?, NOW())
-        `;
-        const values = [
-            userData.nom,
-            userData.prenom,
-            userData.email,
-            userData.motDePasse,
-            userData.role,
-        ];
+        // 📌 Vérifier si l'email existe déjà
+        const [existingUsers] = await db.query("SELECT * FROM utilisateur WHERE email = ?", [email]);
+        if (existingUsers.length > 0) {
+            return res.status(400).json({ message: "Cet email est déjà utilisé." });
+        }
 
-        db.query(sql, values, (err, result) => {
-            if (err) {
-                console.error("Erreur lors de l'insertion dans la base de données :", err.message);
-                return res.status(500).json({ message: "Erreur lors de l'enregistrement dans la base de données." });
-            }
+        // 📌 Hacher le mot de passe
+        const hashedPassword = await bcrypt.hash(motDePasse, 10);
 
-            console.log("Utilisateur inséré avec succès :", result);
-            res.status(201).json({ message: "Utilisateur inscrit avec succès et enregistré dans la base de données !" });
-        });
+        // 📌 Insérer l'utilisateur
+        const sql = `INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role, date_creation) VALUES (?, ?, ?, ?, ?, NOW())`;
+        const [result] = await db.query(sql, [nom, prenom, email, hashedPassword, role]);
+
+        console.log("✅ Utilisateur inséré avec succès :", result);
+        res.status(201).json({ message: "Inscription réussie !" });
     } catch (error) {
-        console.error("Erreur lors de l'inscription :", error.message);
-        res.status(500).json({ message: "Une erreur est survenue lors de l'inscription." });
+        console.error("❌ Erreur lors de l'inscription :", error.message);
+        res.status(500).json({ message: "Erreur interne du serveur." });
     }
 });
 

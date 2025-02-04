@@ -1,3 +1,4 @@
+/* 
 package controleur;
 
 import java.io.IOException;
@@ -61,3 +62,4 @@ public class InscriptionServlet extends jakarta.servlet.http.HttpServlet {
         }
     }
 }
+*/

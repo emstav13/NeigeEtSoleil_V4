@@ -28,6 +28,7 @@ router.get("/sportives", async (req, res) => {
     } catch (error) {
         console.error("❌ Erreur lors de la récupération des activités sportives :", error);
         res.status(500).json({ error: "Erreur interne du serveur." });
+        
     }
 });
 
