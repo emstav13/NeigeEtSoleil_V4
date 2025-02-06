@@ -13,8 +13,10 @@
         <button onclick="retourAccueil()" class="btn btn-primary">🏠 Retour à l'accueil</button>
         <script>  
             function retourAccueil() {
-            window.location.href = "index.html"; // Redirige vers la page d'accueil
-        }</script>
+                window.location.href = "index.html"; // Redirige vers la page d'accueil
+            }
+        </script>
+
         <!-- 🔎 Formulaire de recherche -->
         <form id="searchForm" class="row g-3 mt-4">
             <div class="col-md-4">
@@ -75,6 +77,62 @@
         </div>
     </div>
 
+
+    
+<!-- 📌 MODALE DE RÉSERVATION -->
+<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reservationModalLabel">Confirmation de Réservation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <form id="reservationForm">
+            <!-- 🔹 Informations du client -->
+            <input type="hidden" id="modalLogementId">
+
+            <div class="mb-3">
+              <label for="modalNom" class="form-label">Nom</label>
+              <input type="text" class="form-control" id="modalNom" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="modalPrenom" class="form-label">Prénom</label>
+              <input type="text" class="form-control" id="modalPrenom" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="modalEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="modalEmail" >
+            </div>
+  
+            <!-- 🔹 Dates de réservation -->
+            <div class="mb-3">
+              <label for="modalDateDebut" class="form-label">Date Début</label>
+              <input type="date" class="form-control" id="modalDateDebut" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="modalDateFin" class="form-label">Date Fin</label>
+              <input type="date" class="form-control" id="modalDateFin" readonly>
+            </div>
+  
+            <!-- 🔹 Prix total calculé -->
+            <div class="mb-3">
+              <label for="modalPrixTotal" class="form-label">Prix Total (€)</label>
+              <input type="text" class="form-control" id="modalPrixTotal" readonly>
+            </div>
+  
+            <!-- 🔹 Bouton de confirmation -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+              <button type="submit" class="btn btn-primary" id="modalConfirmerReservation">Confirmer la Réservation</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
 </body>

@@ -1,9 +1,59 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../utils/dbConnection");
+const fs = require("fs");
+const path = require("path");
+const pdf = require("pdfkit"); // 📌 Module pour générer un PDF
+const nodemailer = require("nodemailer"); // 📌 Module pour envoyer un email
 
+// 🚀📜 1️⃣ **Génération du contrat en PDF**
+router.get("/generer-contrat/:id_reservation", async (req, res) => {
+    const { id_reservation } = req.params;
 
-// 📌 1️⃣ Vérifier si une réservation existe déjà AVANT d’en créer une
+    try {
+        console.log(`📜 Génération du contrat pour la réservation ID : ${id_reservation}...`);
+
+        // 🔍 Récupération des infos de la réservation
+        const sql = `
+            SELECT r.id_reservation, u.nom, u.prenom, u.email, l.nom_immeuble, l.adresse, r.date_debut, r.date_fin
+            FROM reservation r
+            JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
+            JOIN logement l ON r.id_logement = l.id_logement
+            WHERE r.id_reservation = ?
+        `;
+        const [result] = await db.query(sql, [id_reservation]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Réservation introuvable." });
+        }
+
+        const reservation = result[0];
+
+        // 📌 **Création du fichier PDF**
+        const pdfDoc = new pdf();
+        const filePath = path.join(__dirname, `../../Contrats/contrat_${id_reservation}.pdf`);
+
+        pdfDoc.pipe(fs.createWriteStream(filePath));
+        pdfDoc.fontSize(20).text("Contrat de Location", { align: "center" });
+        pdfDoc.moveDown();
+        pdfDoc.fontSize(14).text(`Nom : ${reservation.nom} ${reservation.prenom}`);
+        pdfDoc.text(`Email : ${reservation.email}`);
+        pdfDoc.text(`Logement : ${reservation.nom_immeuble}`);
+        pdfDoc.text(`Adresse : ${reservation.adresse}`);
+        pdfDoc.text(`Période : du ${reservation.date_debut} au ${reservation.date_fin}`);
+        pdfDoc.moveDown();
+        pdfDoc.text("Merci de signer et de retourner ce contrat.");
+        pdfDoc.end();
+
+        console.log("✅ Contrat généré :", filePath);
+        res.download(filePath);
+    } catch (error) {
+        console.error("❌ Erreur lors de la génération du contrat :", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+});
+
+// 📌  Vérifier si une réservation existe déjà AVANT d’en créer une
 router.get("/verifier-reservation", async (req, res) => {
     const { id_utilisateur, id_logement, date_debut, date_fin } = req.query;
 
@@ -108,8 +158,94 @@ router.get("/mes-reservations/:id_utilisateur", async (req, res) => {
 });
 
 
+// 🚀✅ 2️⃣ **Validation de la réservation par l'admin**
+router.put("/valider-reservation/:id_reservation", async (req, res) => {
+    const { id_reservation } = req.params;
 
-// 📌 4️⃣ Ajouter une réservation avec une **vérification anti-doublon**
+    try {
+        console.log(`✅ Validation de la réservation ID : ${id_reservation}...`);
+
+        // 📌 Mise à jour du statut de la réservation à "confirmée"
+        const sql = `UPDATE reservation SET statut = 'reserve' WHERE id_reservation = ?`;
+        const [result] = await db.query(sql, [id_reservation]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Réservation introuvable." });
+        }
+
+        console.log("🚀 Réservation validée !");
+        res.status(200).json({ message: "Réservation validée avec succès." });
+
+    } catch (error) {
+        console.error("❌ Erreur lors de la validation de la réservation :", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+});
+
+// 🚀📧 3️⃣ **Envoi du contrat par email au client**
+router.post("/envoyer-contrat/:id_reservation", async (req, res) => {
+    const { id_reservation } = req.params;
+
+    try {
+        console.log(`📧 Envoi du contrat par email pour la réservation ID : ${id_reservation}...`);
+
+        // 🔍 Récupération des infos du client et du logement
+        const sql = `
+            SELECT u.email, l.nom_immeuble
+            FROM reservation r
+            JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
+            JOIN logement l ON r.id_logement = l.id_logement
+            WHERE r.id_reservation = ?
+        `;
+        const [result] = await db.query(sql, [id_reservation]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Réservation introuvable." });
+        }
+
+        const { email, nom_immeuble } = result[0];
+        const filePath = path.join(__dirname, `../../Contrats/contrat_${id_reservation}.pdf`);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(400).json({ error: "Contrat non généré." });
+        }
+
+        // 📌 **Configuration du service d'envoi d'email**
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "ton_email@gmail.com", // Remplace par ton adresse email
+                pass: "ton_mot_de_passe" // Remplace par ton mot de passe
+            }
+        });
+
+        const mailOptions = {
+            from: "ton_email@gmail.com",
+            to: email,
+            subject: "Votre contrat de location",
+            text: `Bonjour,\n\nVeuillez trouver en pièce jointe le contrat de location pour le logement : ${nom_immeuble}.\n\nMerci de le signer et de le retourner.\n\nCordialement, \nNeige & Soleil`,
+            attachments: [
+                {
+                    filename: `contrat_${id_reservation}.pdf`,
+                    path: filePath
+                }
+            ]
+        };
+
+        // ✉ **Envoi de l'email**
+        await transporter.sendMail(mailOptions);
+        console.log("✅ Email envoyé à :", email);
+
+        res.status(200).json({ message: "Contrat envoyé avec succès par email." });
+
+    } catch (error) {
+        console.error("❌ Erreur lors de l'envoi du contrat :", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+});
+
+
+// 📌  Ajouter une réservation avec une **vérification anti-doublon**
 router.post("/reservation", async (req, res) => {
     const { id_utilisateur, id_logement, date_debut, date_fin } = req.body;
 
