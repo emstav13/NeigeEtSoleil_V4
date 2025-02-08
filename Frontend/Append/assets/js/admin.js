@@ -13,7 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (currentPage === "logements_admin.html") {
         console.log("🏠 Gestion des Logements détectée.");
         gererLogementsAdmin();
-    } else {
+    } 
+    else if (currentPage === "gestion_reservations.html") {
+        console.log("📅 Gestion des Réservations détectée.");
+        gererReservationsAdmin();
+    } 
+    else {
         console.log("⚠️ Page non reconnue, aucune gestion spécifique appliquée.");
     }
 });
@@ -623,3 +628,243 @@ document.getElementById("btnRetourAccueil").addEventListener("click", () => {
 
 }
 
+/**
+ * 📅 Fonction principale pour gérer la gestion des réservations des clients
+ */
+function gererReservationsAdmin() {
+    console.log("📌 Gestion des réservations en cours...");
+
+    fetchReservations();
+
+    // 🔄 Récupère les réservations et affiche uniquement celles en attente
+// 🔄 Récupère les réservations et affiche uniquement celles en attente
+async function fetchReservations() {
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/disponibilites/reservations-en-attente");
+        const reservations = await response.json();
+
+        if (!response.ok) {
+            throw new Error(reservations.error || "Erreur lors de la récupération des réservations.");
+        }
+
+        // ✅ Vérifie si l'élément `reservationTable` existe
+        const reservationTable = document.getElementById("reservationTable");
+        if (!reservationTable) {
+            console.error("❌ Erreur : Élément 'reservationTable' introuvable dans le DOM.");
+            return;
+        }
+
+        // ✅ Vérifie si la liste est vide
+        if (Array.isArray(reservations) && reservations.length === 0) {
+            console.log("⚠️ Aucune réservation en attente.");
+            reservationTable.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 10px;">Aucune réservation en attente.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        console.log("✅ Réservations récupérées :", reservations);
+        displayReservations(reservations);
+    } catch (error) {
+        console.error("❌ Erreur lors de la récupération :", error.message);
+    }
+}
+
+
+
+    // 📌 Affiche les réservations en attente dans le tableau
+    function displayReservations(reservations) {
+        const tableBody = document.getElementById("reservationsTableBody");
+        tableBody.innerHTML = ""; // Vide le tableau avant d'ajouter les nouvelles données
+
+        reservations.forEach(reservation => {
+            if (reservation.statut !== "reserve") return; // Afficher uniquement les réservations en attente
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td>${reservation.id_reservation || 'N/A'}</td>
+            <td>${reservation.nom_client ? reservation.nom_client + " " + reservation.prenom_client : 'N/A'}</td>
+            <td>${reservation.email_client || 'N/A'}</td>
+            <td>${reservation.logement || 'N/A'}</td>
+            <td>${reservation.adresse || 'N/A'}</td>
+            <td>${reservation.date_debut ? new Date(reservation.date_debut).toLocaleDateString("fr-FR") : 'N/A'}</td>
+            <td>${reservation.date_fin ? new Date(reservation.date_fin).toLocaleDateString("fr-FR") : 'N/A'}</td>
+            <td><span class="badge badge-warning">${reservation.statut || 'N/A'}</span></td>
+            <td>
+                <button class="btn btn-success confirm-btn" data-id="${reservation.id_reservation}">✅ Confirmer</button>
+                <button class="btn btn-danger cancel-btn" data-id="${reservation.id_reservation}">❌ Annuler</button>
+                <button class="btn btn-primary envoyer-contrat" data-id="${reservation.id_reservation}">📩 Envoyer Contrat</button>
+            </td>
+        `;
+        document.querySelectorAll(".envoyer-contrat").forEach(button => {
+            button.addEventListener("click", async (event) => {
+                const idReservation = event.target.dataset.id;
+                console.log(`📩 Envoi du contrat pour la réservation ID : ${idReservation}`);
+                await envoyerContrat(idReservation);
+            });
+        });
+                
+
+// 🔹 **Sélection des boutons après l'ajout du HTML**
+const confirmButton = row.querySelector(".confirm-btn");
+const cancelButton = row.querySelector(".cancel-btn");
+
+// 🔹 **Ajout des événements `click`**
+confirmButton.addEventListener("click", function() {
+    confirmerReservation(reservation.id_reservation);
+});
+
+cancelButton.addEventListener("click", function() {
+    annulerReservation(reservation.id_reservation);
+});
+
+        
+
+
+            tableBody.appendChild(row);
+        });
+
+        // Ajoute les événements aux boutons
+        document.querySelectorAll(".confirmer-btn").forEach(btn => {
+            btn.addEventListener("click", confirmReservation);
+        });
+
+        document.querySelectorAll(".annuler-btn").forEach(btn => {
+            btn.addEventListener("click", cancelReservation);
+        });
+    }
+
+    // ✅ Fonction pour confirmer une réservation
+    async function confirmReservation(event) {
+        const idReservation = event.target.getAttribute("data-id");
+
+        try {
+            const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/valider-reservation/${idReservation}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Erreur lors de la confirmation.");
+            }
+
+            alert("✅ Réservation confirmée !");
+            
+            // 📧 Envoi du contrat après confirmation
+            await envoyerContrat(idReservation);
+
+            fetchReservations(); // Recharge les réservations mises à jour
+        } catch (error) {
+            console.error("❌ Erreur lors de la confirmation :", error.message);
+            alert("Impossible de confirmer la réservation.");
+        }
+    }
+
+    // ❌ Fonction pour annuler une réservation
+    async function cancelReservation(event) {
+        const idReservation = event.target.getAttribute("data-id");
+
+        const confirmation = confirm("Êtes-vous sûr de vouloir annuler cette réservation ?");
+        if (!confirmation) return;
+
+        try {
+            const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/annuler-reservation/${idReservation}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Erreur lors de l'annulation.");
+            }
+
+            alert("❌ Réservation annulée.");
+            fetchReservations(); // Recharge les réservations mises à jour
+        } catch (error) {
+            console.error("❌ Erreur lors de l'annulation :", error.message);
+            alert("Impossible d'annuler la réservation.");
+        }
+    }
+
+    // 📧 Fonction pour envoyer le contrat au client
+    async function envoyerContrat(idReservation) {
+        try {
+            console.log(`📜 Génération du contrat pour la réservation ID : ${idReservation}...`);
+            
+            // 🔄 Génération du contrat
+            const generateResponse = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/generer-contrat/${idReservation}`, { method: "GET" });
+            if (!generateResponse.ok) {
+                const errorData = await generateResponse.json();
+                throw new Error(errorData.error || "Échec de la génération du contrat.");
+            }
+            console.log("✅ Contrat généré avec succès !");
+            
+            // 📧 Envoi du contrat
+            console.log(`📧 Envoi du contrat pour la réservation ID : ${idReservation}...`);
+            const sendResponse = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/envoyer-contrat/${idReservation}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+            
+            // 🔍 Vérifier si l'envoi a réussi
+            if (!sendResponse.ok) {
+                const errorData = await sendResponse.json();
+                throw new Error(errorData.error || "Erreur lors de l'envoi du contrat.");
+            }
+    
+            const sendData = await sendResponse.json();
+            console.log("✅ Réponse du serveur :", sendData);
+            alert("📧 Contrat envoyé avec succès !");
+            
+        } catch (error) {
+            console.error("❌ Erreur lors de l'envoi du contrat :", error.message);
+    
+            // 🛑 Gérer les erreurs réseau (Failed to fetch)
+            if (error.message === "Failed to fetch") {
+                alert("❌ Erreur réseau : Impossible de contacter le serveur.");
+            } else {
+                alert("❌ Impossible d'envoyer le contrat. Vérifie si la réservation est valide et si le contrat a été généré.");
+            }
+        }
+    }
+    
+    
+
+
+    // Fonction pour confirmer la réservation
+function confirmerReservation(idReservation) {
+    fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/gestion-reservation/${idReservation}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirmer" }) // ✅ Envoi de l'action correcte
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Réservation confirmée :", data);
+        alert("Réservation confirmée avec succès !");
+        location.reload(); // Recharge la page
+    })
+    .catch(error => console.error("❌ Erreur lors de la confirmation :", error));
+}
+
+// Fonction pour annuler la réservation
+function annulerReservation(idReservation) {
+    fetch(`http://localhost:3000/NeigeEtSoleil_V4/disponibilites/gestion-reservation/${idReservation}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "annuler" }) // ✅ Envoi de l'action correcte
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("❌ Réservation annulée :", data);
+        alert("Réservation annulée avec succès !");
+        location.reload(); // Recharge la page
+    })
+    .catch(error => console.error("❌ Erreur lors de l'annulation :", error));
+}
+
+
+}

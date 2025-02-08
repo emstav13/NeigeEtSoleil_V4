@@ -1,9 +1,24 @@
+require("dotenv").config();
+const fs = require("fs");
+const path = require("path"); // ✅ Importer path AVANT de l'utiliser
+if (fs.existsSync(path.join(__dirname, ".env"))) {
+    console.log("📂 Fichier .env détecté !");
+} else {
+    console.log("❌ Fichier .env introuvable !");
+}
+
+
+console.log("📌 EMAIL_USER :", process.env.EMAIL_USER);
+console.log("📌 EMAIL_PASS :", process.env.EMAIL_PASS ? "Mot de passe chargé" : "❌ MDP manquant !");
+
 const express = require("express");
-const path = require("path");
+
 const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
+
+
 
 // Middleware pour parser les données JSON
 app.use(express.json()); // Permet de lire les requêtes au format JSON
@@ -43,6 +58,7 @@ app.use("/NeigeEtSoleil_V4/disponibilites", disponibilitesRoutes);
 app.use("/NeigeEtSoleil_V4/activites", activitesRoutes);
 
 
+app.use('/NeigeEtSoleil_V4/contrats', express.static(path.join(__dirname, 'src/Contrats')));
 
 // Gestion des erreurs pour les routes inexistantes
 app.use((req, res) => {
@@ -58,3 +74,4 @@ app.get("/test-image", (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Serveur en cours d'exécution sur http://localhost:${PORT}`);
 });
+console.log("✅ Le fichier disponibilites.js est bien chargé !");
