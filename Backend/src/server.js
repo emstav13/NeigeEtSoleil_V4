@@ -50,13 +50,14 @@ const loginRoute = require("./routes/login");
 const logementRoute = require("./routes/logement"); // Importez la route logement
 const disponibilitesRoutes = require("./routes/disponibilites");
 const activitesRoutes = require("./routes/activites");
+const statsRoutes = require("./routes/stats");
 
 app.use("/NeigeEtSoleil_V4/inscription", inscriptionRoute); // Ajoute la route d'inscription
 app.use("/NeigeEtSoleil_V4/login", loginRoute);
 app.use("/NeigeEtSoleil_V4/logement", logementRoute); // Définir la route 
 app.use("/NeigeEtSoleil_V4/disponibilites", disponibilitesRoutes);
 app.use("/NeigeEtSoleil_V4/activites", activitesRoutes);
-
+app.use("/NeigeEtSoleil_V4/stats", statsRoutes);
 
 app.use('/NeigeEtSoleil_V4/contrats', express.static(path.join(__dirname, 'src/Contrats')));
 

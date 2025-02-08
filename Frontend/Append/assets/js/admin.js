@@ -868,3 +868,365 @@ function annulerReservation(idReservation) {
 
 
 }
+
+/**
+ * 📊 Fonction principale pour gérer la section Dashboard
+ */
+function gererDashboardAdmin() {
+    console.log("📊 Chargement du Dashboard...");
+
+    // Initialisation des graphiques
+    let chartReservationsMois, chartRevenusStation, chartActivitesPopulaires, chartRevenusSaisonLogement;
+
+    // Charger les statistiques globales
+    chargerStatistiquesGlobales();
+
+    // Charger les graphiques
+    chargerGraphiqueReservationsMois();
+    chargerGraphiqueRevenusStation();
+    chargerGraphiqueActivitesPopulaires();
+    chargerGraphiqueRevenusSaisonLogement();
+
+    // Charger les tableaux
+    chargerTableauTopClients();
+    
+}
+
+/**
+ * 📌 Fonction pour charger les statistiques globales
+ */
+    async function chargerStatistiquesGlobales() {
+    console.log("📊 Chargement des statistiques globales...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/globales");
+        if (!response.ok) throw new Error("Erreur lors du chargement des statistiques globales.");
+        
+        const stats = await response.json();
+        console.log("✅ Statistiques globales :", stats);
+
+        document.getElementById("totalReservations").textContent = stats.total_reservations;
+        document.getElementById("totalLogements").textContent = stats.total_logements;
+        document.getElementById("totalActivites").textContent = stats.total_activites;
+        document.getElementById("revenuTotal").textContent = `${stats.revenu_total.toLocaleString()} €`;
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement des statistiques globales.");
+    }
+}
+
+/**
+ * 📊 Fonction pour charger le graphique des réservations par mois
+ */
+let chartReservationsMois = null;
+
+async function chargerGraphiqueReservationsMois() {
+    console.log("📊 Chargement du graphique : Réservations par Mois...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/reservations-par-mois");
+        if (!response.ok) throw new Error("Erreur lors du chargement des réservations par mois.");
+
+        const data = await response.json();
+        console.log("✅ Données Réservations par Mois :", data);
+
+        const mois = data.map(item => `${item.mois} ${item.annee}`);
+        const nombreReservations = data.map(item => item.nombre_reservations);
+
+        const ctx = document.getElementById("chartReservationsMois").getContext("2d");
+
+        if (chartReservationsMois instanceof Chart) {
+            chartReservationsMois.destroy();
+        }
+
+        chartReservationsMois = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: mois,
+                datasets: [{
+                    label: "Réservations",
+                    data: nombreReservations,
+                    backgroundColor: "rgba(54, 162, 235, 0.6)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement du graphique des réservations par mois.");
+    }
+}
+
+
+/**
+ * 📊 Fonction pour charger le graphique des revenus par station
+ */
+async function chargerGraphiqueRevenusStation() {
+    console.log("📊 Chargement du graphique : Revenus par Station...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/revenus-par-saison-logement");
+        if (!response.ok) throw new Error("Erreur lors du chargement des revenus par station.");
+
+        const data = await response.json();
+        console.log("✅ Données Revenus par Station :", data);
+
+        const stations = data.map(item => item.nom_station);
+        const revenus = data.map(item => item.revenu_total);
+
+        const ctx = document.getElementById("chartRevenusStation").getContext("2d");
+
+// Vérifie si le graphique existe et le détruit s'il est défini
+if (typeof window.chartRevenusStation !== "undefined") {
+  window.chartRevenusStation.destroy();
+}
+
+// Crée un nouveau graphique
+window.chartRevenusStation = new Chart(ctx, {
+  type: "pie",
+  data: {
+    labels: stations,
+    datasets: [{
+      label: "Revenus (€)",
+      data: revenus,
+      backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+    }]
+  },
+  options: {
+    responsive: true
+  }
+});
+
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement du graphique des revenus par station.");
+    }
+}
+/**
+ * 📊 Fonction pour charger le graphique des revenus par station
+ */
+window.chartRevenusStation = undefined;
+
+async function chargerGraphiqueRevenusStation() {
+    console.log("📊 Chargement du graphique : Revenus par Station...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/revenus-par-saison-logement");
+        if (!response.ok) throw new Error("Erreur lors du chargement des revenus par station.");
+
+        const data = await response.json();
+        console.log("✅ Données Revenus par Station :", data);
+
+        data.forEach((item, index) => {
+            console.log(`🔍 Objet ${index + 1}:`, item);
+        });
+        
+        // Vérification des clés
+        if (data.length > 0 && data[0].hasOwnProperty('logement') && data[0].hasOwnProperty('revenu_total')) {
+            const revenusParStation = {};
+        
+            data.forEach(item => {
+                const match = item.logement.match(/Maison\s+([A-Za-z\s\-']+)/);  // Expression régulière pour extraire correctement le nom de la station
+                const station = match ? match[1].trim() : "Inconnu";
+                
+                if (!revenusParStation[station]) {
+                    revenusParStation[station] = 0;
+                }
+                revenusParStation[station] += parseFloat(item.revenu_total) || 0;
+            });
+        
+            const stations = Object.keys(revenusParStation);
+            const revenus = Object.values(revenusParStation);
+        
+            // Générer des couleurs uniques
+            const couleurs = stations.map((_, index) => `hsl(${(index * 360 / stations.length)}, 70%, 60%)`);
+        
+            const ctx = document.getElementById("chartRevenusStation").getContext("2d");
+            if (window.chartRevenusStation) window.chartRevenusStation.destroy();
+            window.chartRevenusStation = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: stations,
+                    datasets: [{
+                        label: "Revenus (€)",
+                        data: revenus,
+                        backgroundColor: couleurs,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                    }
+                }
+            });
+        } else {
+            console.warn("⚠️ Données manquantes ou structure inattendue :", data);
+            alert("Les données de revenus par station ne sont pas disponibles.");
+        }
+        
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement du graphique des revenus par station.");
+    }
+}
+
+
+/**
+ * 📊 Fonction pour charger le graphique des activités les plus populaires
+ */
+window.chartActivitesPopulaires = null;
+
+async function chargerGraphiqueActivitesPopulaires() {
+    console.log("📊 Chargement du graphique : Activités les Plus Populaires...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/activites-populaires");
+        if (!response.ok) throw new Error("Erreur lors du chargement des activités populaires.");
+
+        const data = await response.json();
+        console.log("✅ Données Activités Populaires :", data);
+
+        const activites = data.map(item => item.nom_activite);
+        const nombreReservations = data.map(item => item.nombre_reservations);
+
+        const ctx = document.getElementById("chartActivitesPopulaires").getContext("2d");
+
+        // Vérification et destruction du graphique s'il existe déjà
+        if (window.chartActivitesPopulaires) {
+            window.chartActivitesPopulaires.destroy();
+        }
+
+        // Création du nouveau graphique
+        window.chartActivitesPopulaires = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: activites,
+                datasets: [{
+                    label: "Nombre de Réservations",
+                    data: nombreReservations,
+                    backgroundColor: "rgba(75, 192, 192, 0.6)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement du graphique des activités populaires.");
+    }
+}
+
+/**
+ * 📊 Fonction pour charger le graphique des revenus par saison et logement
+ */
+window.chartRevenusSaisonLogement = null;
+async function chargerGraphiqueRevenusSaisonLogement() {
+    console.log("📊 Chargement du graphique : Revenus par Saison et Logement...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/revenus-par-saison-logement");
+        if (!response.ok) throw new Error("Erreur lors du chargement des revenus par saison et logement.");
+
+        const data = await response.json();
+        console.log("✅ Données Revenus par Saison et Logement :", data);
+
+        // Filtrage des données valides
+        const dataFiltre = data.filter(item => item.nom_saison && item.nom_immeuble);
+
+        const labels = dataFiltre.map(item => `${item.nom_saison} (${item.nom_immeuble})`);
+        console.log("🔍 Données filtrées :", dataFiltre);
+        const revenus = dataFiltre.map(item => parseFloat(item.revenu_total) || 0);
+        console.log("🔍 Revenus :", revenus);
+
+        const ctx = document.getElementById("chartRevenusSaisonLogement").getContext("2d");
+        if (window.chartRevenusSaisonLogement) window.chartRevenusSaisonLogement.destroy();
+        window.chartRevenusSaisonLogement = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Revenu (€)",
+                    data: revenus,
+                    backgroundColor: "rgba(255, 99, 132, 0.6)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement du graphique des revenus par saison et logement.");
+    }
+}
+
+/**
+ * 📋 Fonction pour charger le tableau des Top 5 Clients
+ */
+async function chargerTableauTopClients() {
+    console.log("📋 Chargement du tableau : Top 5 des Clients...");
+
+    try {
+        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/stats/top-clients/5");
+        if (!response.ok) throw new Error("Erreur lors du chargement du Top 5 des clients.");
+
+        const data = await response.json();
+        console.log("✅ Données Top Clients :", data);
+
+        const tbody = document.getElementById("topClients");
+        tbody.innerHTML = data.map((client, index) => `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${client.nom_client || "N/A"}</td>
+            <td>${client.prenom_client || "N/A"}</td>
+            <td>${client.email_client || "N/A"}</td>
+            <td>${client.nombre_reservations || 0}</td>
+        </tr>
+    `).join("");
+    
+
+
+    } catch (error) {
+        console.error("❌ Erreur :", error);
+        alert("Erreur lors du chargement du tableau des Top Clients.");
+    }
+}
