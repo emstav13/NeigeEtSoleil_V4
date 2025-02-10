@@ -7,6 +7,33 @@ const db = require("../utils/dbConnection");
  * 🌍 ROUTES CLIENT - Récupération
  **********************************/
 
+
+// 📅 Route : Récupérer les réservations d'activités d'un utilisateur
+router.get("/mes-reservations/:id_utilisateur", async (req, res) => {
+    const { id_utilisateur } = req.params;
+
+    try {
+        const sql = `
+            SELECT ra.id_reservation, ag.nom_activite, ra.date_reservation, ra.nombre_personnes, ra.prix_total
+            FROM reservation_activite ra
+            JOIN activite_generale ag ON ra.id_activite = ag.id_activite
+            WHERE ra.id_utilisateur = ?
+            ORDER BY ra.date_reservation DESC
+        `;
+        const [rows] = await db.query(sql, [id_utilisateur]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Aucune réservation trouvée." });
+        }
+
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("❌ Erreur lors de la récupération des réservations d'activités :", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+});
+
+
 // 🏋️‍♂️ 2️⃣ Récupérer uniquement les activités sportives
 router.get("/sportives", async (req, res) => {
     try {
@@ -80,6 +107,30 @@ LEFT JOIN tarif t ON ad.id_activite = t.id_activite
         console.error("❌ Erreur lors de la récupération des activités de détente :", error);
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
+});
+
+// Route POST pour réserver une activité
+router.post("/reserver", async (req, res) => {
+    const { id_utilisateur, id_activite, date_reservation, nombre_personnes, prix_total } = req.body;
+  
+    if (!id_utilisateur || !id_activite || !date_reservation || !nombre_personnes || !prix_total) {
+      return res.status(400).json({ error: "Tous les champs sont requis." });
+    }
+  
+    try {
+      const query = `
+        INSERT INTO reservation_activite (id_utilisateur, id_activite, date_reservation, nombre_personnes, prix_total)
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      await db.query(query, [id_utilisateur, id_activite, date_reservation, nombre_personnes, prix_total]);
+      
+      res.status(201).json({ message: "Réservation enregistrée avec succès !" });
+      
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement de la réservation :", error);
+      res.status(500).json({ error: "Erreur serveur. Veuillez réessayer plus tard." });
+    }
+     
 });
 
 

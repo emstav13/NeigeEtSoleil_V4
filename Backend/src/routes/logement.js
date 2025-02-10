@@ -8,6 +8,7 @@ const router = express.Router();
 
 // Répertoire où les photos seront enregistrées
 const uploadDir = path.join(__dirname, "../../Frontend/Append/assets/img/habitation");
+console.log("📂 Dossier de destination :", uploadDir);
 
 // Vérification et création du répertoire si nécessaire
 if (!fs.existsSync(uploadDir)) {
@@ -18,28 +19,19 @@ if (!fs.existsSync(uploadDir)) {
 // Configuration de Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir); // Sauvegarde les fichiers dans le bon répertoire
+        cb(null, uploadDir); // Répertoire pour sauvegarder les fichiers
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + "-" + file.originalname); // Nomme les fichiers de manière unique
-    },
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + '-' + file.originalname); // Nomme les fichiers de manière unique
+    }
 });
 
-// Middleware Multer pour gérer le fichier
+// Middleware Multer pour gérer les fichiers
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limite de 5 Mo
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error("Format de fichier non supporté. Seuls les fichiers JPEG, PNG et GIF sont autorisés."));
-        }
-    },
+    limits: { fileSize: 5 * 1024 * 1024 } // Limite de taille : 5 Mo
 });
-
 // 🏠 Récupérer tous les logements pour l'admin
 router.get("/admin", async (req, res) => {
     console.log("🔹 Route /admin/logements atteinte !");
@@ -62,7 +54,6 @@ router.get("/admin", async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
-
 // 🏠 Récupérer la liste des propriétaires
 router.get("/proprietaires", async (req, res) => {
     try {
@@ -79,11 +70,8 @@ router.get("/proprietaires", async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
-
-
 // 🏠 Récupérer un logement spécifique par son ID
 router.get("/:id", async (req, res) => {
-
     const logementId = req.params.id;
     console.log(`📌 Requête GET reçue pour le logement ID: ${logementId}`);
 
@@ -111,53 +99,19 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+router.post("/test-upload", upload.any(), (req, res) => {
+    console.log("📸 Fichiers reçus :", req.files);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "Aucun fichier reçu !" });
+    }
+    res.status(200).json({ message: "Fichier reçu avec succès !" });
+  });
+  
 // 🏠 Ajouter un logement (Spécifique pour l'admin)
 router.post("/admin", upload.single("photo"), async (req, res) => {
-    const {
-        idProprietaire, 
-        nomImmeuble,
-        adresse,
-        codePostal,
-        ville,
-        typeLogement,
-        surfaceHabitable,
-        capaciteAccueil,
-        specifite,
-    } = req.body;
+    console.log("📝 Données reçues :", req.body);
+    console.log("📸 Fichier reçu :", req.file);
 
-    
-    const photoPath = req.file ? `assets/img/habitation/${req.file.filename}` : null;
-
-    const sql = `
-        INSERT INTO Logement (id_proprietaire, nom_immeuble, adresse, code_postal, ville, type_logement, surface_habitable, capacite_accueil, specifite, photo)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    try {
-        const result = await db.query(sql, [
-            idProprietaire,
-            nomImmeuble,
-            adresse,
-            codePostal,
-            ville,
-            typeLogement,
-            surfaceHabitable,
-            capaciteAccueil,
-            specifite,
-            photoPath, // Ajout du chemin de la photo dans la base de données
-        ]);
-        res.status(201).json({ message: "Logement ajouté avec succès !" });
-    } catch (error) {
-        console.error("Erreur lors de l'insertion du logement :", error);
-        res.status(500).json({ error: "Erreur lors de l'ajout du logement" });
-    }
-    console.log("Données reçues :", req.body);
-
-});
-
-
-// Ajouter un logement avec une photo
-router.post("/", upload.single("photo"), async (req, res) => {
     const {
         idProprietaire,
         nomImmeuble,
@@ -170,7 +124,6 @@ router.post("/", upload.single("photo"), async (req, res) => {
         specifite,
     } = req.body;
 
-    // Vérifie si le fichier a été correctement téléchargé
     const photoPath = req.file ? `assets/img/habitation/${req.file.filename}` : null;
 
     const sql = `
@@ -189,33 +142,76 @@ router.post("/", upload.single("photo"), async (req, res) => {
             surfaceHabitable,
             capaciteAccueil,
             specifite,
-            photoPath, // Ajout du chemin de la photo dans la base de données
+            photoPath,
         ]);
+
+        console.log("📥 Logement inséré avec succès :", result.insertId);
         res.status(201).json({ message: "Logement ajouté avec succès !" });
     } catch (error) {
-        console.error("Erreur lors de l'insertion du logement :", error);
+        console.error("❌ Erreur lors de l'insertion du logement :", error);
         res.status(500).json({ error: "Erreur lors de l'ajout du logement" });
     }
-
-    
 });
+// 🏠 Ajouter un logement avec une photo
+router.post("/", upload.single("photo"), async (req, res) => {
+    try {
+        console.log("📝 Données reçues :", req.body);
+        console.log("📸 Fichier reçu (req.file):", req.file);
+        console.log("📸 Fichiers reçus (req.files):", req.files);
+        const {
+            idProprietaire,
+            nomImmeuble,
+            adresse,
+            codePostal,
+            ville,
+            typeLogement,
+            surfaceHabitable,
+            capaciteAccueil,
+            specifite,
+        } = req.body;
 
+        const photoPath = req.file ? `assets/img/habitation/${req.file.filename}` : null;
+
+        const sql = `
+            INSERT INTO Logement (id_proprietaire, nom_immeuble, adresse, code_postal, ville, type_logement, surface_habitable, capacite_accueil, specifite, photo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        const [result] = await db.query(sql, [
+            idProprietaire,
+            nomImmeuble,
+            adresse,
+            codePostal,
+            ville,
+            typeLogement,
+            surfaceHabitable,
+            capaciteAccueil,
+            specifite || null,
+            photoPath,
+        ]);
+
+        console.log("📥 Logement inséré avec succès :", result.insertId);
+        res.status(201).json({ message: "Logement ajouté avec succès !" });
+    } catch (error) {
+        console.error("❌ Erreur lors de l'ajout du logement :", error);
+        res.status(500).json({ error: "Erreur interne lors de l'ajout du logement." });
+    }
+});
 // 📝 Modifier un logement existant
 router.put("/:id", async (req, res) => {
-
     console.log("📌 Requête PUT reçue avec ID :", req.params.id);
-    console.log("📥 Données reçues :", req.body); // 🔍 Vérification ici
+    console.log("📥 Données reçues :", req.body);
 
     const { id } = req.params;
     const {
-        nom_immeuble, 
+        nomImmeuble,
         adresse,
-        code_postal,
+        codePostal,
         ville,
-        type_logement,
-        surface_habitable, 
-        capacite_accueil, 
-        specifite
+        typeLogement,
+        surfaceHabitable,
+        capaciteAccueil,
+        specifite,
     } = req.body;
 
     const sql = `
@@ -227,15 +223,15 @@ router.put("/:id", async (req, res) => {
 
     try {
         const [result] = await db.query(sql, [
-            nom_immeuble,
+            nomImmeuble,
             adresse,
-            code_postal,
+            codePostal,
             ville,
-            type_logement,
-            surface_habitable,
-            capacite_accueil,
+            typeLogement,
+            surfaceHabitable,
+            capaciteAccueil,
             specifite,
-            id
+            id,
         ]);
 
         if (result.affectedRows > 0) {
@@ -248,10 +244,9 @@ router.put("/:id", async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
-
 // ❌ Supprimer un logement par ID
 router.delete("/admin/:id", async (req, res) => {
-    const { id } = req.params; // Récupère l'ID depuis l'URL
+    const { id } = req.params;
 
     try {
         const sql = "DELETE FROM logement WHERE id_logement = ?";
@@ -267,8 +262,4 @@ router.delete("/admin/:id", async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
-
-
-
-
 module.exports = router;

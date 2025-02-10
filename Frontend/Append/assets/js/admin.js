@@ -13,15 +13,78 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (currentPage === "logements_admin.html") {
         console.log("🏠 Gestion des Logements détectée.");
         gererLogementsAdmin();
-    } 
-    else if (currentPage === "gestion_reservations.html") {
+    } else if (currentPage === "gestion_reservations.html") {
         console.log("📅 Gestion des Réservations détectée.");
         gererReservationsAdmin();
-    } 
-    else {
+    } else if (currentPage === "dashboard.html") {
+        console.log("📅 Gestion des Stats détectée.");
+        gererDashboardAdmin();
+    } else {
         console.log("⚠️ Page non reconnue, aucune gestion spécifique appliquée.");
     }
+
+    // Gestion de la redirection pour l'élément "Guides touristiques"
+    const guideTouristiqueDiv = document.getElementById("guide-touristique");
+    if (guideTouristiqueDiv) {
+        const stretchedLink = guideTouristiqueDiv.querySelector(".stretched-link");
+        if (stretchedLink) {
+            stretchedLink.addEventListener("click", function (e) {
+                e.preventDefault();  // Empêche le comportement par défaut du lien
+
+                // Récupération de l'utilisateur connecté
+                const user = JSON.parse(localStorage.getItem("user"));
+
+                if (!user) {
+                    alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
+                    return;
+                }
+
+                // Redirection en fonction du rôle
+                if (user.role === "admin") {
+                    window.location.href = "dashboard.html";
+                } else {
+                    window.location.href = "blog-details.html";
+                }
+            });
+        } else {
+            console.error("Le lien 'stretched-link' n'a pas été trouvé dans '#guide-touristique'.");
+        }
+    } else {
+        console.error("L'élément avec l'ID 'guide-touristique' n'existe pas !");
+    }
+
+    // Gestion de la redirection pour l'élément "Assistance 24/7"
+const assistanceDiv = document.getElementById("Assistance");
+if (assistanceDiv) {
+    const stretchedLink = assistanceDiv.querySelector(".stretched-link");
+    if (stretchedLink) {
+        stretchedLink.addEventListener("click", function (e) {
+            e.preventDefault();  // Empêche le comportement par défaut du lien
+
+            // Récupération de l'utilisateur connecté
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            if (!user) {
+                alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
+                return;
+            }
+
+            // Redirection en fonction du rôle
+            if (user.role === "admin") {
+                window.location.href = "gestion_reservations.html";  // Chemin relatif
+            } else {
+                window.location.href = "blog-details.html";  // Chemin relatif
+            }
+        });
+    } else {
+        console.error("Le lien 'stretched-link' n'a pas été trouvé dans l'élément avec l'id 'Assistance'.");
+    }
+} else {
+    console.error("L'élément avec l'id 'Assistance' n'existe pas !");
+}
+
 });
+
 
 
 /**
@@ -631,12 +694,13 @@ document.getElementById("btnRetourAccueil").addEventListener("click", () => {
 /**
  * 📅 Fonction principale pour gérer la gestion des réservations des clients
  */
+
+                    // Stocker les réservations globales pour faciliter le filtre et la recherche
+                    let allReservations = [];
 function gererReservationsAdmin() {
     console.log("📌 Gestion des réservations en cours...");
 
     fetchReservations();
-
-    // 🔄 Récupère les réservations et affiche uniquement celles en attente
 // 🔄 Récupère les réservations et affiche uniquement celles en attente
 async function fetchReservations() {
     try {
@@ -691,13 +755,20 @@ async function fetchReservations() {
             <td>${reservation.adresse || 'N/A'}</td>
             <td>${reservation.date_debut ? new Date(reservation.date_debut).toLocaleDateString("fr-FR") : 'N/A'}</td>
             <td>${reservation.date_fin ? new Date(reservation.date_fin).toLocaleDateString("fr-FR") : 'N/A'}</td>
-            <td><span class="badge badge-warning">${reservation.statut || 'N/A'}</span></td>
+            <td><span class="badge ${getBadgeClass(reservation.statut)}">${reservation.statut || 'N/A'}</span></td>
+
             <td>
                 <button class="btn btn-success confirm-btn" data-id="${reservation.id_reservation}">✅ Confirmer</button>
                 <button class="btn btn-danger cancel-btn" data-id="${reservation.id_reservation}">❌ Annuler</button>
                 <button class="btn btn-primary envoyer-contrat" data-id="${reservation.id_reservation}">📩 Envoyer Contrat</button>
             </td>
         `;
+
+        console.log(getBadgeClass("confirmed"));  // Attendu : "bg-success"
+console.log(getBadgeClass("pending"));    // Attendu : "bg-warning"
+console.log(getBadgeClass("cancelled"));  // Attendu : "bg-danger"
+console.log(getBadgeClass("unknown"));    // Attendu : "bg-secondary"
+
         document.querySelectorAll(".envoyer-contrat").forEach(button => {
             button.addEventListener("click", async (event) => {
                 const idReservation = event.target.dataset.id;
@@ -735,6 +806,33 @@ cancelButton.addEventListener("click", function() {
             btn.addEventListener("click", cancelReservation);
         });
     }
+
+    // 🎯 Recherche et filtrage
+document.getElementById("searchInput").addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase();
+    const filteredReservations = allReservations.filter(reservation =>
+        reservation.nom_client.toLowerCase().includes(searchTerm) ||
+        reservation.prenom_client.toLowerCase().includes(searchTerm)
+    );
+    displayReservations(filteredReservations);
+});
+
+document.getElementById("filterStatus").addEventListener("change", function () {
+    const selectedStatus = this.value;
+    const filteredReservations = selectedStatus === "all"
+        ? allReservations
+        : allReservations.filter(reservation => reservation.statut === selectedStatus);
+    displayReservations(filteredReservations);
+});
+// 🌟 Fonction pour obtenir la classe de badge en fonction du statut
+function getBadgeClass(status) {
+    switch (status) {
+        case "confirmed": return "bg-success";
+        case "pending": return "bg-warning";
+        case "cancelled": return "bg-danger";
+        default: return "bg-secondary";
+    }
+}
 
     // ✅ Fonction pour confirmer une réservation
     async function confirmReservation(event) {

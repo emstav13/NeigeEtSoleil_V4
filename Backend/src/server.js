@@ -7,10 +7,6 @@ if (fs.existsSync(path.join(__dirname, ".env"))) {
     console.log("❌ Fichier .env introuvable !");
 }
 
-
-console.log("📌 EMAIL_USER :", process.env.EMAIL_USER);
-console.log("📌 EMAIL_PASS :", process.env.EMAIL_PASS ? "Mot de passe chargé" : "❌ MDP manquant !");
-
 const express = require("express");
 
 const cors = require("cors");
@@ -51,6 +47,7 @@ const logementRoute = require("./routes/logement"); // Importez la route logemen
 const disponibilitesRoutes = require("./routes/disponibilites");
 const activitesRoutes = require("./routes/activites");
 const statsRoutes = require("./routes/stats");
+const imageRoutes = require("./routes/images");
 
 app.use("/NeigeEtSoleil_V4/inscription", inscriptionRoute); // Ajoute la route d'inscription
 app.use("/NeigeEtSoleil_V4/login", loginRoute);
@@ -58,7 +55,10 @@ app.use("/NeigeEtSoleil_V4/logement", logementRoute); // Définir la route
 app.use("/NeigeEtSoleil_V4/disponibilites", disponibilitesRoutes);
 app.use("/NeigeEtSoleil_V4/activites", activitesRoutes);
 app.use("/NeigeEtSoleil_V4/stats", statsRoutes);
+app.use("/NeigeEtSoleil_V4/images-api", imageRoutes); 
 
+app.use('/NeigeEtSoleil_V4/images/habitation', express.static('C:/Users/nabil/workspace/NeigeEtSoleil_V4/Frontend/Append/assets/img/habitation'));
+app.use('/NeigeEtSoleil_V4/images/activite', express.static('C:/Users/nabil/workspace/NeigeEtSoleil_V4/Frontend/Append/assets/img/activite'));
 app.use('/NeigeEtSoleil_V4/contrats', express.static(path.join(__dirname, 'src/Contrats')));
 
 // Gestion des erreurs pour les routes inexistantes

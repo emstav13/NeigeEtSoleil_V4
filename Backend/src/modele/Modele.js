@@ -1,4 +1,5 @@
-const dbConnection = require("../utils/dbConnection");
+/*
+// const dbConnection = require("../utils/dbConnection");
 
 // Méthode pour exécuter des requêtes SQL génériques (INSERT, UPDATE, DELETE)
 const executerRequete = async (query, params = []) => {
@@ -27,3 +28,4 @@ module.exports = {
     executerRequete,
     verifierUtilisateur,
 };
+*/
