@@ -12,16 +12,31 @@
     <link href="assets/css/main.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header py-3 bg-dark text-light text-center">
-        <h1>Gestion des Activités</h1>
-        <p>Ajoutez, modifiez ou supprimez les activités proposées par Neige & Soleil.</p>
-    </header>
-    <div class="container mt-3 text-start">
-        <button id="btnRetourAccueil" class="btn btn-secondary">
-            ⬅ Retour à l'accueil
+   <!-- NAVBAR -->
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Neige & Soleil</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logements_admin.html">Gestion des Logements</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="activites_admin.html">Gestion des Activités</a>
+                </li>
+            </ul>
+            <span class="navbar-text">
+                Admin | <a href="logout.html" class="text-light">Déconnexion</a>
+            </span>
+        </div>
     </div>
+</nav>
     
     <main class="container mt-4">
         <!-- 🔎 Barre de recherche -->

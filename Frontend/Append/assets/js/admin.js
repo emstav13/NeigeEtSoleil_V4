@@ -21,68 +21,31 @@ document.addEventListener("DOMContentLoaded", () => {
         gererDashboardAdmin();
     } else {
         console.log("⚠️ Page non reconnue, aucune gestion spécifique appliquée.");
-    }
+    }  
 
-    // Gestion de la redirection pour l'élément "Guides touristiques"
-    const guideTouristiqueDiv = document.getElementById("guide-touristique");
-    if (guideTouristiqueDiv) {
-        const stretchedLink = guideTouristiqueDiv.querySelector(".stretched-link");
-        if (stretchedLink) {
-            stretchedLink.addEventListener("click", function (e) {
-                e.preventDefault();  // Empêche le comportement par défaut du lien
 
-                // Récupération de l'utilisateur connecté
-                const user = JSON.parse(localStorage.getItem("user"));
-
-                if (!user) {
-                    alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
-                    return;
-                }
-
-                // Redirection en fonction du rôle
-                if (user.role === "admin") {
-                    window.location.href = "dashboard.html";
-                } else {
-                    window.location.href = "blog-details.html";
-                }
-            });
-        } else {
-            console.error("Le lien 'stretched-link' n'a pas été trouvé dans '#guide-touristique'.");
+    // Vérifier la connexion de l’utilisateur et effectuer une redirection selon le rôle
+function handleRedirection(elementId, redirectUrl) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.addEventListener("click", (e) => {
+        e.preventDefault();
+  
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          alert("Vous devez être connecté !");
+          window.location.href = "login.html";
+          return;
         }
-    } else {
-        console.error("L'élément avec l'ID 'guide-touristique' n'existe pas !");
+  
+        // Redirection selon le rôle
+        window.location.href = redirectUrl;
+      });
     }
-
-    // Gestion de la redirection pour l'élément "Assistance 24/7"
-const assistanceDiv = document.getElementById("Assistance");
-if (assistanceDiv) {
-    const stretchedLink = assistanceDiv.querySelector(".stretched-link");
-    if (stretchedLink) {
-        stretchedLink.addEventListener("click", function (e) {
-            e.preventDefault();  // Empêche le comportement par défaut du lien
-
-            // Récupération de l'utilisateur connecté
-            const user = JSON.parse(localStorage.getItem("user"));
-
-            if (!user) {
-                alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
-                return;
-            }
-
-            // Redirection en fonction du rôle
-            if (user.role === "admin") {
-                window.location.href = "gestion_reservations.html";  // Chemin relatif
-            } else {
-                window.location.href = "blog-details.html";  // Chemin relatif
-            }
-        });
-    } else {
-        console.error("Le lien 'stretched-link' n'a pas été trouvé dans l'élément avec l'id 'Assistance'.");
-    }
-} else {
-    console.error("L'élément avec l'id 'Assistance' n'existe pas !");
-}
-
+  }
+   // Appels à la fonction générique pour attacher les redirections
+   handleRedirection("guide-touristique", "gestion_reservations.html");
+   handleRedirection("Assistance", "dashboard.html");
 });
 
 
@@ -90,50 +53,42 @@ if (assistanceDiv) {
 /**
  * 🏠 Fonction principale pour gérer la section logements
  */
-function gererLogementsAdmin() {
-    afficherLogements();
-
+async function gererLogementsAdmin() {
+    console.log("🚀 Initialisation de la gestion des logements...");
+  
+    // Charger et afficher les logements
+    await afficherLogements();
+  
+    // Ajouter un logement
     document.getElementById("ajouterLogement").addEventListener("click", async () => {
-        await chargerProprietaires(); // 🟢 Charger les propriétaires avant d'afficher le modal
-        const modal = new bootstrap.Modal(document.getElementById("addLogementModal"));
-        modal.show();
+      await chargerProprietaires(); 
+      const modal = new bootstrap.Modal(document.getElementById("addLogementModal"));
+      modal.show();
     });
-    
-
+  
+    // Soumission du formulaire d'ajout
     document.getElementById("addLogementForm").addEventListener("submit", async (event) => {
         event.preventDefault();
+        const formData = new FormData(event.target);
     
-        // 🔍 Vérifier la sélection d'un propriétaire
-        const selectElement = document.getElementById("selectProprietaire");
-        const idProprietaire = selectElement ? selectElement.value : null;
-        
-        console.log("📌 ID Propriétaire sélectionné :", idProprietaire);
+        // Vérification de toutes les entrées dans FormData
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
     
-        if (!idProprietaire) {
+        if (!formData.get("idProprietaire")) {
             alert("❌ Veuillez sélectionner un propriétaire.");
             return;
         }
     
-        const formData = new FormData();
-        formData.append("idProprietaire", idProprietaire);
-        formData.append("nomImmeuble", document.getElementById("addNomImmeuble").value);
-        formData.append("adresse", document.getElementById("addAdresse").value);
-        formData.append("codePostal", document.getElementById("addCodePostal").value);
-        formData.append("ville", document.getElementById("addVille").value);
-        formData.append("typeLogement", document.getElementById("addTypeLogement").value);
-        formData.append("surfaceHabitable", document.getElementById("addSurface").value);
-        formData.append("capaciteAccueil", document.getElementById("addCapacite").value);
-        formData.append("specifite", document.getElementById("addSpecifite").value);
-        formData.append("photo", document.getElementById("addPhoto").files[0]);
-    
         try {
-            const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/logement/admin", {
+            const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/logement", {
                 method: "POST",
                 body: formData
-            });
+              });
+              
     
             if (!response.ok) throw new Error("Erreur lors de l'ajout du logement.");
-    
             alert("✅ Logement ajouté avec succès !");
             location.reload();
         } catch (error) {
@@ -142,224 +97,195 @@ function gererLogementsAdmin() {
         }
     });
     
-    /**
- * 📌 Fonction pour récupérer et afficher les logements
- */
-async function afficherLogements() {
+  }
+  async function afficherLogements() {
     console.log("🏠 Chargement des logements...");
+  
     const tableBody = document.getElementById("logementsTable");
     if (!tableBody) {
-        console.error("❌ Erreur : Impossible de trouver le tableau des logements.");
-        return;
+      console.error("❌ Erreur : Impossible de trouver le tableau des logements.");
+      return;
     }
-
+  
     try {
-        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/logement/admin");
-        if (!response.ok) throw new Error("Erreur lors du chargement des logements.");
-        const logements = await response.json();
-
-        tableBody.innerHTML = logements.length === 0 ? `<tr><td colspan="8" class="text-center">Aucun logement disponible</td></tr>` :
-            logements.map(logement => `
-                <tr>
-                    <td>${logement.nom_immeuble}</td>
-                    <td>${logement.adresse}, ${logement.code_postal}</td>
-                    <td>${logement.ville}</td>
-                    <td>${logement.type_logement}</td>
-                    <td>${logement.surface_habitable} m²</td>
-                    <td>${logement.capacite_accueil} pers.</td>
-                    <td>${logement.proprietaire_nom} ${logement.proprietaire_prenom}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm edit-logement" data-id="${logement.id_logement}">✏️ Modifier</button>
-                        <button class="btn btn-danger btn-sm delete-logement" data-id="${logement.id_logement}">🗑 Supprimer</button>
-                    </td>
-                </tr>
-            `).join("");
-
-        setTimeout(ajouterEventListenersLogements, 500);
+      const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/logement/admin");
+      if (!response.ok) throw new Error("Erreur lors du chargement des logements.");
+  
+      const logements = await response.json();
+  
+      tableBody.innerHTML = logements.length === 0
+        ? `<tr><td colspan="8" class="text-center">Aucun logement disponible</td></tr>`
+        : logements.map(logement => `
+          <tr>
+            <td>${logement.nom_immeuble}</td>
+            <td>${logement.adresse}, ${logement.code_postal}</td>
+            <td>${logement.ville}</td>
+            <td>${logement.type_logement}</td>
+            <td>${logement.surface_habitable} m²</td>
+            <td>${logement.capacite_accueil} pers.</td>
+            <td>${logement.proprietaire_nom} ${logement.proprietaire_prenom}</td>
+            <td>
+              <button class="btn btn-warning btn-sm edit-logement" data-id="${logement.id_logement}">✏️ Modifier</button>
+              <button class="btn btn-danger btn-sm delete-logement" data-id="${logement.id_logement}">🗑 Supprimer</button>
+            </td>
+          </tr>
+        `).join("");
+  
+      ajouterEventListenersLogements();
     } catch (error) {
-        console.error("❌ Erreur :", error);
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Impossible de charger les logements.</td></tr>`;
+      console.error("❌ Erreur lors du chargement des logements :", error);
+      tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Impossible de charger les logements.</td></tr>`;
     }
+  }
+    // 🔄 Ajoute les événements sur les boutons Modifier et Supprimer
+function ajouterEventListenersLogements() {
+    document.querySelectorAll(".edit-logement").forEach(button => {
+      button.addEventListener("click", async (event) => {
+        const id = event.target.dataset.id;
+        await ouvrirModalModification(id);  // 📌 Appelle la fonction pour modifier le logement
+      });
+    });
+  
+    document.querySelectorAll(".delete-logement").forEach(button => {
+      button.addEventListener("click", async (event) => {
+        const id = event.target.dataset.id;
+        if (confirm("Voulez-vous vraiment supprimer ce logement ?")) {
+          await deleteLogement(id);  // 📌 Appelle la fonction pour supprimer le logement
+        }
+      });
+    });
+  }
+  async function ouvrirModalModification(id) {
+    try {
+      const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/${id}`);
+      if (!response.ok) throw new Error("Erreur lors de la récupération du logement.");
+  
+      const logement = await response.json();
+      remplirFormulaireModification(logement);  // Fonction qui remplit les champs du formulaire avec les données
+  
+      const modal = new bootstrap.Modal(document.getElementById("editLogementModal"));
+      modal.show();
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération du logement :", error);
+      alert("Impossible de charger les détails du logement.");
+    }
+  }
+  async function deleteLogement(id) {
+    try {
+      const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/admin/${id}`, {
+        method: "DELETE"
+      });
+  
+      if (!response.ok) throw new Error("Erreur lors de la suppression du logement.");
+      
+      alert("✅ Logement supprimé avec succès !");
+      location.reload();  // 🔄 Recharge la page pour mettre à jour la liste
+    } catch (error) {
+      console.error("❌ Erreur lors de la suppression :", error);
+      alert("Impossible de supprimer le logement.");
+    }
+  }
+
+  //Cette fonction remplit les champs du formulaire avec les données récupérées.
+  function remplirFormulaireModification(data) {
+    document.getElementById("editIdLogement").value = data.id_logement;
+    document.getElementById("editNomImmeuble").value = data.nom_immeuble;
+    document.getElementById("editAdresse").value = data.adresse;
+    document.getElementById("editCodePostal").value = data.code_postal;
+    document.getElementById("editVille").value = data.ville;
+    document.getElementById("editTypeLogement").value = data.type_logement;
+    document.getElementById("editSurface").value = data.surface_habitable;
+    document.getElementById("editCapacite").value = data.capacite_accueil;
+    document.getElementById("editSpecifite").value = data.specifite || "";  
+
+    // ✅ Assurez-vous que les champs sont modifiables
+    document.getElementById("editNomImmeuble").readOnly = false;
+    document.getElementById("editAdresse").readOnly = false;
+    document.getElementById("editCodePostal").readOnly = false;
+    document.getElementById("editVille").readOnly = false;
+    document.getElementById("editTypeLogement").disabled = false;
+    document.getElementById("editSurface").readOnly = false;
+    document.getElementById("editCapacite").readOnly = false;
+    document.getElementById("editSpecifite").readOnly = false;
 }
 
-
-async function ouvrirModalModification(id) {
-    try {
-        console.log("📌 Ouverture du modal pour le logement ID :", id);
-        
-        const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/${id}`);
-
-        console.log("🔍 Status de la réponse :", response.status);
-
-        if (!response.ok) throw new Error("Erreur lors de la récupération du logement.");
-
-        const logement = await response.json();
-        console.log("📥 Logement récupéré :", logement); // 🔍 Vérification
-
-        console.log("📌 Vérification des champs avant remplissage :");
-console.log("editIdLogement :", document.getElementById("editIdLogement"));
-console.log("editNomImmeuble :", document.getElementById("editNomImmeuble"));
-console.log("editAdresse :", document.getElementById("editAdresse"));
-console.log("editCodePostal :", document.getElementById("editCodePostal"));
-console.log("editVille :", document.getElementById("editVille"));
-console.log("editTypeLogement :", document.getElementById("editTypeLogement"));
-console.log("editSurface :", document.getElementById("editSurface"));
-console.log("editCapacite :", document.getElementById("editCapacite"));
-console.log("editSpecifite :", document.getElementById("editSpecifite"));
-
-        // 🏠 Pré-remplir les champs du formulaire avec les données du logement
-        document.getElementById("editIdLogement").value = logement.id_logement;
-        document.getElementById("editNomImmeuble").value = logement.nom_immeuble;
-        document.getElementById("editAdresse").value = logement.adresse;
-        document.getElementById("editCodePostal").value = logement.code_postal;
-        document.getElementById("editVille").value = logement.ville;
-        document.getElementById("editTypeLogement").value = logement.type_logement;
-        document.getElementById("editSurface").value = logement.surface_habitable;
-        document.getElementById("editCapacite").value = logement.capacite_accueil;
-        document.getElementById("editSpecifite").value = logement.specifite || ""; // Evite valeur undefined
-
-        console.log("📌 Champs pré-remplis avec succès !");
-
-        // ✅ Afficher le modal
-        const modal = new bootstrap.Modal(document.getElementById("editLogementModal"));
-        modal.show();
-    } catch (error) {
-        console.error("❌ Erreur lors de la récupération du logement :", error);
-        alert("Impossible de charger les détails du logement.");
+  async function chargerProprietaires() {
+    const selectProprietaire = document.getElementById("selectProprietaire");
+    console.log("Options dans la liste :", selectProprietaire.options.length);
+    if (!selectProprietaire) {
+      console.error("❌ Erreur : Impossible de trouver la liste déroulante des propriétaires.");
+      return;
     }
-}
+    try {
+      const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/logement/proprietaires");
+      if (!response.ok) throw new Error("Erreur lors du chargement des propriétaires.");
+      const proprietaires = await response.json();
+      selectProprietaire.innerHTML = proprietaires.map(
+        proprietaire => `<option value="${proprietaire.id_utilisateur}">${proprietaire.nom} ${proprietaire.prenom}</option>`
+      ).join("");
+    } catch (error) {
+      console.error("❌ Erreur lors du chargement des propriétaires :", error);
+    }
+  }
+    
+  async function fetchData(url, method = "GET", body = null) {
+    const options = {
+      method,
+      headers: { "Content-Type": "application/json" }
+    };
+    if (body) options.body = body instanceof FormData ? body : JSON.stringify(body);
+    const response = await fetch(url, options);
+    if (!response.ok) throw new Error(`Erreur : ${response.statusText}`);
+    return response.json();
+  }
 
+  const editForm = document.getElementById("editLogementForm");
 
-
-// 🟢 Gestion de la soumission du formulaire de modification
-document.getElementById("editLogementForm").addEventListener("submit", async (event) => {
-    event.preventDefault(); // ❌ Empêcher le rechargement de la page
-
+if (editForm) {
+  editForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
     const idLogement = document.getElementById("editIdLogement").value;
 
-    if (!idLogement) {
-        alert("❌ Erreur : Aucun logement sélectionné.");
-        return;
-    }
-
-    // 🔍 Récupérer uniquement les champs modifiés
     const logementData = {
-        nom_immeuble: document.getElementById("editNomImmeuble").value,
-        adresse: document.getElementById("editAdresse").value,
-        code_postal: document.getElementById("editCodePostal").value,
-        ville: document.getElementById("editVille").value,
-        type_logement: document.getElementById("editTypeLogement").value,
-        surface_habitable: document.getElementById("editSurface").value,
-        capacite_accueil: document.getElementById("editCapacite").value,
-        specifite: document.getElementById("editSpecifite").value
+      nomImmeuble: document.getElementById("editNomImmeuble").value.trim(),
+      adresse: document.getElementById("editAdresse").value.trim(),
+      codePostal: document.getElementById("editCodePostal").value.trim(),
+      ville: document.getElementById("editVille").value.trim(),
+      typeLogement: document.getElementById("editTypeLogement").value.trim(),
+      surfaceHabitable: document.getElementById("editSurface").value || null,
+      capaciteAccueil: document.getElementById("editCapacite").value || null,
+      specifite: document.getElementById("editSpecifite").value.trim() || null,
     };
 
-    try {
-        // 🚀 Envoyer uniquement les valeurs modifiées au serveur
-        const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/${idLogement}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(logementData) // ✅ Envoyer en JSON
-        });
-
-        if (!response.ok) {
-            throw new Error("Erreur lors de la modification du logement.");
-        }
-
-        alert("✅ Logement modifié avec succès !");
-        location.reload(); // 🔄 Recharger la page pour voir les changements
-    } catch (error) {
-        console.error("❌ Erreur lors de la modification du logement :", error);
-        alert("Impossible de modifier le logement.");
-    }
-});
-
-
-/**
- * 🔄 Ajoute les événements sur les boutons Modifier et Supprimer (Logements)
- */
-function ajouterEventListenersLogements() {
-    document.querySelectorAll(".delete-logement").forEach(button => {
-        button.addEventListener("click", async (event) => {
-            const id = event.target.dataset.id;
-            if (confirm("Voulez-vous vraiment supprimer ce logement ?")) {
-                await deleteLogement(id);
-            }
-        });
-    });
-
-    document.querySelectorAll(".edit-logement").forEach(button => {
-        button.addEventListener("click", async (event) => {
-            const id = event.target.dataset.id;
-            console.log("🟢 ID du logement sélectionné :", id); // ✅ Vérification
-            await ouvrirModalModification(id);
-        });
-    });
-}
-
-/**
- * ❌ Fonction pour supprimer un logement
- */
-async function deleteLogement(id) {
-    try {
-        const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/admin/${id}`, {
-            method: "DELETE"
-        });
-
-        if (response.ok) {
-            alert("Logement supprimé avec succès !");
-            location.reload();
-        } else {
-            throw new Error("Erreur lors de la suppression.");
-        }
-    } catch (error) {
-        console.error("❌ Erreur de suppression :", error);
-        alert("Impossible de supprimer le logement.");
-    }
-}
-
-/**
- * 📌 Récupère la liste des propriétaires et remplit le select
- */
-async function chargerProprietaires() {
-    console.log("📥 Chargement des propriétaires...");
-
-    const selectProprietaire = document.getElementById("selectProprietaire");
-    if (!selectProprietaire) {
-        console.error("❌ Erreur : Impossible de trouver la liste déroulante des propriétaires.");
-        return;
-    }
+    console.log("📌 Données envoyées :", logementData);
 
     try {
-        const response = await fetch("http://localhost:3000/NeigeEtSoleil_V4/logement/proprietaires");
-        if (!response.ok) throw new Error("Erreur lors du chargement des propriétaires.");
+      // Ajout d'un indicateur de chargement
+      editForm.querySelector("button[type='submit']").textContent = "Modification en cours...";
 
-        const proprietaires = await response.json();
+      const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/${idLogement}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(logementData),
+      });
 
-        if (proprietaires.length === 0) {
-            console.warn("⚠️ Aucun propriétaire disponible.");
-        }
+      if (!response.ok) throw new Error("Erreur lors de la modification du logement.");
 
-        console.log("✅ Propriétaires récupérés :", proprietaires);
-
-        // ✅ Insérer les propriétaires dans la liste déroulante
-        selectProprietaire.innerHTML = `<option value="">Sélectionner un propriétaire</option>` + 
-            proprietaires.map(proprietaire => 
-                `<option value="${proprietaire.id_utilisateur}">${proprietaire.nom} ${proprietaire.prenom}</option>`
-            ).join("");
-
-        console.log("🔹 Liste déroulante après mise à jour :", selectProprietaire.innerHTML);
-
+      alert("✅ Logement modifié avec succès !");
+      location.reload();
     } catch (error) {
-        console.error("❌ Erreur lors du chargement des propriétaires :", error);
+      console.error("❌ Erreur lors de la modification :", error);
+      alert("Impossible de modifier le logement.");
+    } finally {
+      // Remettre le texte d'origine sur le bouton après l’opération
+      editForm.querySelector("button[type='submit']").textContent = "Sauvegarder";
     }
+  });
 }
 
-}
 
 
+  
 /**
  * 🎭 Fonction principale pour gérer la section des activités
  */
@@ -1328,3 +1254,4 @@ async function chargerTableauTopClients() {
         alert("Erreur lors du chargement du tableau des Top Clients.");
     }
 }
+  

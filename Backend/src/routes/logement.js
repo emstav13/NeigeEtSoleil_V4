@@ -99,59 +99,6 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/test-upload", upload.any(), (req, res) => {
-    console.log("📸 Fichiers reçus :", req.files);
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: "Aucun fichier reçu !" });
-    }
-    res.status(200).json({ message: "Fichier reçu avec succès !" });
-  });
-  
-// 🏠 Ajouter un logement (Spécifique pour l'admin)
-router.post("/admin", upload.single("photo"), async (req, res) => {
-    console.log("📝 Données reçues :", req.body);
-    console.log("📸 Fichier reçu :", req.file);
-
-    const {
-        idProprietaire,
-        nomImmeuble,
-        adresse,
-        codePostal,
-        ville,
-        typeLogement,
-        surfaceHabitable,
-        capaciteAccueil,
-        specifite,
-    } = req.body;
-
-    const photoPath = req.file ? `assets/img/habitation/${req.file.filename}` : null;
-
-    const sql = `
-        INSERT INTO Logement (id_proprietaire, nom_immeuble, adresse, code_postal, ville, type_logement, surface_habitable, capacite_accueil, specifite, photo)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    try {
-        const result = await db.query(sql, [
-            idProprietaire,
-            nomImmeuble,
-            adresse,
-            codePostal,
-            ville,
-            typeLogement,
-            surfaceHabitable,
-            capaciteAccueil,
-            specifite,
-            photoPath,
-        ]);
-
-        console.log("📥 Logement inséré avec succès :", result.insertId);
-        res.status(201).json({ message: "Logement ajouté avec succès !" });
-    } catch (error) {
-        console.error("❌ Erreur lors de l'insertion du logement :", error);
-        res.status(500).json({ error: "Erreur lors de l'ajout du logement" });
-    }
-});
 // 🏠 Ajouter un logement avec une photo
 router.post("/", upload.single("photo"), async (req, res) => {
     try {
@@ -199,9 +146,6 @@ router.post("/", upload.single("photo"), async (req, res) => {
 });
 // 📝 Modifier un logement existant
 router.put("/:id", async (req, res) => {
-    console.log("📌 Requête PUT reçue avec ID :", req.params.id);
-    console.log("📥 Données reçues :", req.body);
-
     const { id } = req.params;
     const {
         nomImmeuble,
@@ -213,6 +157,10 @@ router.put("/:id", async (req, res) => {
         capaciteAccueil,
         specifite,
     } = req.body;
+
+    if (!nomImmeuble || !adresse || !codePostal || !ville || !typeLogement || !surfaceHabitable || !capaciteAccueil) {
+        return res.status(400).json({ error: "Tous les champs obligatoires doivent être remplis." });
+    }
 
     const sql = `
         UPDATE logement 
@@ -230,7 +178,7 @@ router.put("/:id", async (req, res) => {
             typeLogement,
             surfaceHabitable,
             capaciteAccueil,
-            specifite,
+            specifite || null,
             id,
         ]);
 
@@ -244,6 +192,7 @@ router.put("/:id", async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
+
 // ❌ Supprimer un logement par ID
 router.delete("/admin/:id", async (req, res) => {
     const { id } = req.params;
