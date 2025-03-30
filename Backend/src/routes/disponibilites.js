@@ -243,38 +243,114 @@
         }
     });
     
-    // 📅 **Route : Obtenir les logements disponibles avec les infos de saison**
+// 📅 **Route : Obtenir les logements disponibles avec les infos de saison**
+// 📅 **Route : Obtenir les logements disponibles avec les infos de saison**
 router.get("/disponibles", async (req, res) => {
-    const { dateDebut, dateFin, ville, type_logement, capaciteAccueil, prixMin, prixMax } = req.query;
+    let { dateDebut, dateFin, ville, type_logement, capaciteAccueil, prixMin, prixMax } = req.query;
 
-    const sql = `
-    SELECT l.*, l.saison_nom, l.prix
-    FROM logements_disponibles l
-    WHERE NOT EXISTS (
-        SELECT 1 FROM reservation r
-        WHERE r.id_logement = l.id_logement
-        AND r.statut = 'confirmee'
-        AND NOT (r.date_fin < ? OR r.date_debut > ?)
-    )
-  `;
-  
-  const params = [dateDebut || "2000-01-01", dateFin || "2100-12-31"];
-  
+    // Assurer que dateDebut et dateFin ont une valeur par défaut si elles sont absentes
+    if (!dateDebut) {
+        dateDebut = "2000-01-01";  // Une date très ancienne pour ne pas bloquer la requête
+    }
+    if (!dateFin) {
+        dateFin = "2100-12-31";  // Une date très lointaine pour inclure toutes les saisons
+    }
 
-    if (ville) { sql += " AND l.ville = ?"; params.push(ville); }
-    if (type_logement) { sql += " AND l.type_logement = ?"; params.push(type_logement); }
-    if (capaciteAccueil) { sql += " AND l.capacite_accueil >= ?"; params.push(capaciteAccueil); }
-    if (prixMin && prixMax) { sql += " AND l.prix BETWEEN ? AND ?"; params.push(prixMin, prixMax); }
+    let sql = `
+    SELECT 
+        l.id_logement, 
+        l.nom_immeuble, 
+        l.adresse, 
+        l.ville, 
+        l.type_logement, 
+        l.surface_habitable, 
+        l.capacite_accueil, 
+        l.specifite, 
+        l.photo, 
+        s.nom AS saison_nom,
+        t.prix AS prix_par_nuit,
+        LEAST(s.date_fin, ?) - GREATEST(s.date_debut, ?) + 1 AS jours_dans_saison
+    FROM logement l
+    JOIN tarif t ON l.id_logement = t.id_logement
+    JOIN saison s ON t.id_saison = s.id_saison
+    WHERE 
+        NOT EXISTS (
+            SELECT 1 FROM reservation r
+            WHERE r.id_logement = l.id_logement
+            AND r.statut = 'confirmé'
+            AND NOT (r.date_fin < ? OR r.date_debut > ?)
+        )
+        AND s.date_fin >= ? 
+        AND s.date_debut <= ?
+    `;
+
+    const params = [dateFin, dateDebut, dateFin, dateDebut, dateDebut, dateFin];
+
+    // Ajout des filtres dynamiques
+    if (ville) {
+        sql += " AND REPLACE(LOWER(TRIM(l.ville)), ' ', '') COLLATE utf8mb4_general_ci = REPLACE(LOWER(TRIM(?)), ' ', '')";
+        params.push(ville);
+    }    
+    if (type_logement) {
+        sql += " AND l.type_logement = ?";
+        params.push(type_logement);
+    }
+    if (capaciteAccueil) {
+        sql += " AND l.capacite_accueil >= ?";
+        params.push(capaciteAccueil);
+    }
+    if (prixMin && prixMax) {
+        sql += " AND t.prix BETWEEN ? AND ?";
+        params.push(prixMin, prixMax);
+    }
+
+    sql += " ORDER BY l.id_logement, s.date_debut;";
 
     try {
-        console.log("📌 Récupération des logements disponibles avec infos de saison...");
+        // 🔍 Debugging: Vérifier les paramètres et la requête SQL générée
+        console.log("🔎 Paramètres reçus :", { dateDebut, dateFin, ville, type_logement, capaciteAccueil, prixMin, prixMax });
+        console.log("📌 Requête SQL générée :", sql);
+        console.log("📌 Paramètres SQL envoyés :", params);
+
+        console.log("📌 Récupération des logements disponibles avec les filtres appliqués...");
         const [rows] = await db.query(sql, params);
-        res.status(200).json(rows);
+
+        // Regrouper les logements par ID et calculer le prix total
+        const logementsMap = new Map();
+
+        rows.forEach(row => {
+            if (!logementsMap.has(row.id_logement)) {
+                logementsMap.set(row.id_logement, {
+                    id_logement: row.id_logement,
+                    nom_immeuble: row.nom_immeuble,
+                    adresse: row.adresse,
+                    ville: row.ville,
+                    type_logement: row.type_logement,
+                    surface_habitable: row.surface_habitable,
+                    capacite_accueil: row.capacite_accueil,
+                    specifite: row.specifite,
+                    photo: row.photo,
+                    prix_total: 0,  // Initialisation
+                    saisons: []
+                });
+            }
+            
+            const logement = logementsMap.get(row.id_logement);
+            logement.prix_total += row.jours_dans_saison * row.prix_par_nuit;
+            logement.saisons.push({
+                saison: row.saison_nom,
+                jours: row.jours_dans_saison,
+                prix_par_nuit: row.prix_par_nuit
+            });
+        });
+
+        res.status(200).json(Array.from(logementsMap.values()));
     } catch (error) {
         console.error("❌ Erreur lors de la récupération des logements :", error);
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
+
 
     // 🕒 **Route : Récupérer les réservations en attente de confirmation**
     router.get("/reservations-en-attente", async (req, res) => {

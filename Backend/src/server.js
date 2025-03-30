@@ -67,12 +67,8 @@ app.use((req, res) => {
     res.status(404).send("<h1>404 - Page Not Found</h1>"); // Réponse en cas de route inconnue
 });
 
-app.get("/test-image", (req, res) => {
-    res.sendFile(path.join(__dirname, "Frontend", "Append", "assets", "img", "habitation", "maison_Tignes.jpg"));
-});
-
 // Démarrer le serveur
 app.listen(PORT, () => {
     console.log(`🚀 Serveur en cours d'exécution sur http://localhost:${PORT}`);
 });
-console.log("✅ Le fichier disponibilites.js est bien chargé !");
+

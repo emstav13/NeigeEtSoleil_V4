@@ -290,6 +290,74 @@ function handleIndexPage() {
 function handleAddHabitationPage() {
   console.log("👐 handleAddHabitationPage() est exécutée");
 
+  /**
+ * 📌 Fonction pour récupérer et afficher les logements du propriétaire connecté
+ */
+async function fetchAndDisplayLogements() {
+  console.log("🏠 Chargement des logements du propriétaire...");
+
+  // Récupération de l'utilisateur depuis le localStorage
+  const proprietaire = JSON.parse(localStorage.getItem("user"));
+
+  if (!proprietaire || !proprietaire.id_utilisateur) {
+    console.error("❌ Impossible de récupérer l'utilisateur connecté.");
+    document.getElementById("noLogementsMessage").style.display = "block";
+    return;
+  }
+
+  const idProprietaire = Number(proprietaire.id_utilisateur);
+  console.log("🔍 ID du propriétaire récupéré :", idProprietaire);
+
+  try {
+    // Appel à l'API pour récupérer les logements
+    const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/logement/mes-logements/${idProprietaire}`)
+
+    if (!response.ok) throw new Error("Erreur lors de la récupération des logements");
+
+    const logements = await response.json();
+    console.log("📥 Logements récupérés :", logements);
+
+    const container = document.getElementById("mesLogementsContainer");
+    container.innerHTML = ""; // Nettoyage du conteneur
+
+    if (logements.length === 0) {
+      document.getElementById("noLogementsMessage").style.display = "block";
+      return;
+    }
+
+    document.getElementById("noLogementsMessage").style.display = "none";
+
+    // Génération des cartes pour chaque logement
+    logements.forEach(logement => {
+      const logementCard = `
+        <div class="col">
+          <div class="card shadow-lg">
+            <img src="assets/img/habitation/${logement.photo}" class="card-img-top" alt="${logement.nom_immeuble}">
+            <div class="card-body">
+              <h5 class="card-title">${logement.nom_immeuble}</h5>
+              <p class="card-text">
+                <strong>Adresse :</strong> ${logement.adresse} <br>
+                <strong>Ville :</strong> ${logement.ville} <br>
+                <strong>Type :</strong> ${logement.type_logement} <br>
+                <strong>Capacité :</strong> ${logement.capacite_accueil} personnes <br>
+                <strong>Surface :</strong> ${logement.surface_habitable} m² <br>
+                <strong>Spécificité :</strong> ${logement.specifite || "Aucune"} 
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML += logementCard;
+    });
+
+  } catch (error) {
+    console.error("❌ Erreur lors de la récupération des logements :", error);
+    document.getElementById("noLogementsMessage").style.display = "block";
+  }
+}
+
+
   document.addEventListener("DOMContentLoaded", function () {
     console.log("🌐 DOM entièrement chargé pour add-habitation.html");
 
@@ -318,6 +386,8 @@ function handleAddHabitationPage() {
 
     console.log("✅ ID du propriétaire récupéré depuis localStorage :", idProprietaire);
   });
+
+  fetchAndDisplayLogements();
 
   const form = document.getElementById("addHabitationForm");
 
@@ -381,6 +451,8 @@ function handleAddHabitationPage() {
 
         alert("Logement ajouté avec succès !");
         form.reset();
+
+        fetchAndDisplayLogements(); // ✅ Rafraîchir la liste des logements après l'ajout
       } catch (error) {
         console.error("❌ Erreur lors de l'ajout du logement :", error.message);
         alert(`Erreur lors de l'ajout du logement : ${error.message}`);
@@ -464,41 +536,42 @@ function handleDisponibilitesPage() {
     document.querySelectorAll(".reserver-btn").forEach((btn) => {
       btn.addEventListener("click", handleReservation);
     });
-  }
+}
 
-  function createLogementCard(logement) {
-    const imageSrc = logement.photo?.trim() !== "" 
-      ? `http://localhost:3000/assets/img/habitation/${logement.photo}` 
-      : "http://localhost:3000/assets/img/habitation/default.jpg";
-  
-    const saison = logement.saison_nom 
-      ? `${logement.saison_nom} (du ${new Date(logement.saison_date_debut).toLocaleDateString()} au ${new Date(logement.saison_date_fin).toLocaleDateString()})`
-      : "Non définie";
-  
-    return `
-      <div class="card mb-3">
-        <div class="row g-0">
-          <div class="col-md-4">
-            <img src="${imageSrc}" class="img-fluid rounded-start" alt="${logement.nom_immeuble}">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title">${logement.nom_immeuble}</h5>
-              <p class="card-text">
-                <strong>Adresse :</strong> ${logement.adresse}<br>
-                <strong>Ville :</strong> ${logement.ville}<br>
-                <strong>Type :</strong> ${logement.type_logement}<br>
-                <strong>Saison :</strong> ${saison}<br>
-                <strong>Prix :</strong> ${logement.prix !== null ? logement.prix + " €" : "Non défini"}
-              </p>
-              <button class="btn btn-success reserver-btn" data-id-logement="${logement.id_logement}" data-prix="${logement.prix}">Réserver</button>
-            </div>
+function createLogementCard(logement) {
+  const imageSrc = logement.photo?.trim() !== "" 
+    ? `http://localhost:3000/assets/img/habitation/${logement.photo}` 
+    : "http://localhost:3000/assets/img/habitation/default.jpg";
+
+  const saisonsHTML = logement.saisons.map(saison => `
+      <li>${saison.jours} jours en ${saison.saison} (Prix: ${saison.prix_par_nuit}€/nuit)</li>
+  `).join("");
+
+  return `
+    <div class="card mb-3">
+      <div class="row g-0">
+        <div class="col-md-4">
+          <img src="${imageSrc}" class="img-fluid rounded-start" alt="${logement.nom_immeuble}">
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">${logement.nom_immeuble}</h5>
+            <p class="card-text">
+              <strong>Adresse :</strong> ${logement.adresse}<br>
+              <strong>Ville :</strong> ${logement.ville}<br>
+              <strong>Type :</strong> ${logement.type_logement}<br>
+              <strong>Prix Total :</strong> ${logement.prix_total} €<br>
+              <strong>Répartition des saisons :</strong>
+              <ul>${saisonsHTML}</ul>
+            </p>
+            <button class="btn btn-success reserver-btn" data-id-logement="${logement.id_logement}" data-prix="${logement.prix_total}">Réserver</button>
           </div>
         </div>
       </div>
-    `;
-  }
-  
+    </div>
+  `;
+}
+
   
   /**
    * 🛏️ Gestion de la réservation via modal

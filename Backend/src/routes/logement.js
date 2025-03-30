@@ -7,7 +7,8 @@ const db = require("../utils/dbConnection"); // Adapter selon votre fichier de c
 const router = express.Router();
 
 // Répertoire où les photos seront enregistrées
-const uploadDir = path.join(__dirname, "../../Frontend/Append/assets/img/habitation");
+const uploadDir = path.resolve(process.cwd(), "Frontend", "Append", "assets", "img", "habitation");
+
 console.log("📂 Dossier de destination :", uploadDir);
 
 // Vérification et création du répertoire si nécessaire
@@ -54,6 +55,37 @@ router.get("/admin", async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
+
+// 🏠 Récupérer les logements d'un propriétaire spécifique
+router.get("/mes-logements/:id_proprietaire", async (req, res) => {
+    const { id_proprietaire } = req.params;
+
+    console.log(`📌 Récupération des logements du propriétaire ID: ${id_proprietaire}...`);
+
+    try {
+        const sql = `
+            SELECT id_logement, nom_immeuble, adresse, code_postal, ville, 
+                   type_logement, surface_habitable, capacite_accueil, 
+                   specifite, photo
+            FROM logement
+            WHERE id_proprietaire = ?
+        `;
+
+        const [rows] = await db.query(sql, [id_proprietaire]);
+
+        if (rows.length === 0) {
+            console.log("⚠️ Aucun logement trouvé pour ce propriétaire.");
+            return res.status(404).json({ message: "Aucun logement trouvé." });
+        }
+
+        console.log("✅ Logements récupérés :", rows);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("❌ Erreur lors de la récupération des logements :", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+});
+
 // 🏠 Récupérer la liste des propriétaires
 router.get("/proprietaires", async (req, res) => {
     try {

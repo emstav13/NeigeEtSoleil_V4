@@ -22,16 +22,14 @@ router.get("/mes-reservations/:id_utilisateur", async (req, res) => {
         `;
         const [rows] = await db.query(sql, [id_utilisateur]);
 
-        if (rows.length === 0) {
-            return res.status(404).json({ message: "Aucune réservation trouvée." });
-        }
-
+        // ✅ Si aucune réservation, on renvoie un tableau vide avec un 200 OK
         res.status(200).json(rows);
     } catch (error) {
         console.error("❌ Erreur lors de la récupération des réservations d'activités :", error);
         res.status(500).json({ error: "Erreur interne du serveur." });
     }
 });
+
 
 
 // 🏋️‍♂️ 2️⃣ Récupérer uniquement les activités sportives

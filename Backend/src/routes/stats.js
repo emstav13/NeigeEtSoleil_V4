@@ -29,17 +29,6 @@ router.get("/reservations-par-type-logement", async (req, res) => {
     }
 });
 
-// 📊 Route : Statistiques sur les revenus par saison et logement
-router.get("/revenus-par-saison-logement", async (req, res) => {
-    try {
-        const [result] = await db.query("SELECT * FROM revenus_par_logement_saison");
-        res.status(200).json(result);
-    } catch (error) {
-        console.error("❌ Erreur lors de la récupération des statistiques sur les revenus par saison et logement :", error);
-        res.status(500).json({ error: "Erreur interne du serveur" });
-    }
-});
-
 // 📊 Route : Statistiques des activités les plus populaires
 router.get("/activites-populaires", async (req, res) => {
     try {
@@ -77,21 +66,25 @@ router.get("/reservations-par-mois", async (req, res) => {
 
 // 📊 Route : Statistiques globales
 router.get("/globales", async (req, res) => {
-    try {
-        const [result] = await db.query(`
-           SELECT 
-    COUNT(*) AS total_reservations,
-    (SELECT COUNT(*) FROM logement) AS total_logements,
-    (SELECT COUNT(*) FROM activite_generale) AS total_activites,
-    (SELECT SUM(revenu_total) FROM activites_reservees_par_type) AS revenu_total;
+  try {
+    const [result] = await db.query(`
+      SELECT
+  (SELECT COUNT(*) FROM reservation) AS total_reservations_logement,
+  (SELECT COUNT(*) FROM logement) AS total_logements,
+  (SELECT COUNT(*) FROM reservation_activite) AS total_reservations_activite,
+  (
+    (SELECT SUM(montant) FROM suivi_revenus) + 
+    (SELECT SUM(prix_total) FROM reservation_activite)
+  ) AS revenu_total
+    `);
 
-        `);
-        res.status(200).json(result[0]);
-    } catch (error) {
-        console.error("❌ Erreur lors de la récupération des statistiques globales :", error);
-        res.status(500).json({ error: "Erreur interne du serveur" });
-    }
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("❌ Erreur lors de la récupération des statistiques globales :", error);
+    res.status(500).json({ error: "Erreur interne du serveur" });
+  }
 });
+
 
 // 📊 Route : Meilleur client
 router.get('/top-clients/:nb_clients', async (req, res) => {

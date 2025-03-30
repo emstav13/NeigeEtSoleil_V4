@@ -1,6 +1,15 @@
 /**
  * 📌 Démarrage : Vérifie la section active et charge la bonne gestion
  */
+// ✅ Vérification immédiate de l'accès à dashboard.html
+if (window.location.pathname.includes("dashboard.html")) {
+    const user = JSON.parse(localStorage.getItem("user"));
+  
+    if (!user || user.role !== "admin") {
+      window.location.replace("index.html#contact");
+    }
+  }
+  
 document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ Script admin.js chargé !");
 
@@ -929,10 +938,11 @@ function gererDashboardAdmin() {
         const stats = await response.json();
         console.log("✅ Statistiques globales :", stats);
 
-        document.getElementById("totalReservations").textContent = stats.total_reservations;
+        document.getElementById("totalReservations").textContent = stats.total_reservations_logement;
         document.getElementById("totalLogements").textContent = stats.total_logements;
-        document.getElementById("totalActivites").textContent = stats.total_activites;
+        document.getElementById("totalActivites").textContent = stats.total_reservations_activite;
         document.getElementById("revenuTotal").textContent = `${stats.revenu_total.toLocaleString()} €`;
+
 
     } catch (error) {
         console.error("❌ Erreur :", error);
