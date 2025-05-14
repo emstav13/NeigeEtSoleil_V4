@@ -1,0 +1,40 @@
+	/*Client unClient = new Client("Liam","Ben","Lyon","b@gmail.com","1111111");
+		Controleur.insertClient(unClient);
+		System.out.println("Client insere");*/
+		
+		/* System.out.println("Liste des clients");
+		for (Client unClient : Controleur.selectAllClients()) {
+			System.out.println("Nom : " + unClient.getNom());
+			System.out.println("Prenom : " + unClient.getPrenom());
+		}*/ 
+		
+		/* Controleur.deleteClient(2); */
+		
+		/*Client unClient = new Client(1, "Liam","Ben","Lyon","b@gmail.com","1111111"); 
+		Controleur.updateClient(unClient);*/
+		
+		/*System.out.println("Liste des clients filtres par ville");
+		for (Client unClient : Controleur.selectLikeClients("Ly")) {
+			System.out.println("Nom : " + unClient.getNom());
+			System.out.println("Prenom : " + unClient.getPrenom());
+		} */
+		
+		/*Client unClient = Controleur.selectWhereClient(1);
+		System.out.println("Nom : "+unClient.getNom()+ "   prenom :"+unClient.getPrenom());*/
+		
+		//insertion un technicien 
+		/*Technicien unTechnicien = new Technicien("Ryles","Adel","techni","123", "b@gmail.com","1111111");
+		Controleur.insertTechnicien(unTechnicien);
+		System.out.println("Technicien insere");*/
+		
+		/*System.out.println("Liste des techniciens");
+		for (Technicien unTechnicien : Controleur.selectAllTechniciens()) {
+			System.out.println("Nom : " + unTechnicien.getNom());
+			System.out.println("Prenom : " + unTechnicien.getPrenom());
+		}*/
+		
+		//Controleur.deleteTechnicien(1);
+		
+		/*Technicien unTechnicien = Controleur.selectWhereTechnicien(2); 
+		System.out.println("Nom : " + unTechnicien.getNom());
+		System.out.println("Prenom : " + unTechnicien.getPrenom());*/
