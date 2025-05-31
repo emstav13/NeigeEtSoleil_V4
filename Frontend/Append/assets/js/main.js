@@ -203,6 +203,8 @@ function handleIndexPage() {
           localStorage.setItem("userRole", data.utilisateur.role);
           updateAuthButtons(true); // Mise à jour des boutons après connexion
           window.location.href = "index.html";
+          console.log("✅ DEBUG après login : utilisateur sauvegardé →", data.utilisateur);
+
         } else {
           throw new Error("Utilisateur non trouvé");
         }
@@ -274,6 +276,48 @@ function handleIndexPage() {
       });
     }
   }
+
+const guidesTouristiquesLink = document.getElementById("guidesTouristiquesLink");
+if (guidesTouristiquesLink) {
+    guidesTouristiquesLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+            alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
+            return;
+        }
+
+        if (user.role === "client" || user.role === "proprietaire") {
+            window.location.href = "services-details.html";
+        } else if (user.role === "admin") {
+            window.location.href = "gestion_reservations.html";
+        } else {
+            alert("Rôle utilisateur inconnu !");
+        }
+    });
+}
+
+const assistanceLink = document.getElementById("assistanceLink");
+if (assistanceLink) {
+    assistanceLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+            alert("Vous devez être connecté pour accéder à cette fonctionnalité.");
+            return;
+        }
+
+        if (user.role === "client" || user.role === "proprietaire") {
+            window.location.replace("index.html#contact");
+        } else if (user.role === "admin") {
+            window.location.href = "dashboard.html";
+        } else {
+            alert("Rôle utilisateur inconnu !");
+        }
+    });
+}
+
+
 
   // 🎯 Gestion du lien "Activités" : Redirection selon le rôle
   const activitesLink = document.getElementById("activitesLink");

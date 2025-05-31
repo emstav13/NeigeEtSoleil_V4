@@ -7,15 +7,19 @@ const db = require("../utils/dbConnection"); // Adapter selon votre fichier de c
 const router = express.Router();
 
 // Répertoire où les photos seront enregistrées
-const uploadDir = path.resolve(process.cwd(), "Frontend", "Append", "assets", "img", "habitation");
+const uploadDir = path.resolve(__dirname, "../../../Frontend/Append/assets/img/habitation");
 
-console.log("📂 Dossier de destination :", uploadDir);
+
+console.log("Chemin final vérifié :", uploadDir);
+
 
 // Vérification et création du répertoire si nécessaire
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-    console.log("Répertoire créé :", uploadDir);
+    console.error("❌ Dossier cible introuvable :", uploadDir);
+    console.error("Veuillez vérifier le chemin absolu.");
+    process.exit(1); // Stoppe immédiatement le serveur
 }
+
 
 // Configuration de Multer
 const storage = multer.diskStorage({

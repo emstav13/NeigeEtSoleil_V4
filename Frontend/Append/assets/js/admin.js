@@ -1,18 +1,31 @@
 /**
  * 📌 Démarrage : Vérifie la section active et charge la bonne gestion
- */
-// ✅ Vérification immédiate de l'accès à dashboard.html
-if (window.location.pathname.includes("dashboard.html")) {
+ */if (window.location.pathname.includes("dashboard.html") || window.location.pathname.includes("gestion_reservations.html")) {
     const user = JSON.parse(localStorage.getItem("user"));
-  
     if (!user || user.role !== "admin") {
-      window.location.replace("index.html#contact");
+        // Redirige uniquement si l’utilisateur est sur dashboard et pas déjà en train d’aller vers index.html#contact
+        if (!window.location.href.includes("index.html#contact")) {
+            window.location.replace("index.html#contact");
+        }
     }
-  }
+}
+
+
+
   
 document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ Script admin.js chargé !");
 
+    const adminPages = ["dashboard.html", "gestion_reservations.html", "activites_admin.html", "logements_admin.html"];
+
+adminPages.forEach(page => {
+    if (window.location.pathname.includes(page)) {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || user.role !== "admin") {
+            window.location.replace("index.html#contact");
+        }
+    }
+});
     // Vérifie la page active en fonction de l'URL
     const currentPage = window.location.pathname.split("/").pop();
 
@@ -34,26 +47,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Vérifier la connexion de l’utilisateur et effectuer une redirection selon le rôle
-function handleRedirection(elementId, redirectUrl) {
+function handleRedirection(elementId, redirectMap) {
     const element = document.getElementById(elementId);
     if (element) {
-      element.addEventListener("click", (e) => {
-        e.preventDefault();
-  
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user) {
-          alert("Vous devez être connecté !");
-          window.location.href = "login.html";
-          return;
-        }
-  
-        // Redirection selon le rôle
-        window.location.href = redirectUrl;
-      });
+        element.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                alert("Vous devez être connecté !");
+                window.location.href = "index.html";
+                return;
+            }
+
+            const redirectUrl = redirectMap[user.role];
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            } else {
+                alert("⛔ Vous n'avez pas l'autorisation d'accéder à cette page !");
+            }
+        });
     }
-  }
+}
+
    // Appels à la fonction générique pour attacher les redirections
-   handleRedirection("guide-touristique", "gestion_reservations.html");
+   handleRedirection("guide-touristique", {
+    client: "services-details.html",
+    proprietaire: "services-details.html",
+    admin: "gestion_reservations.html"
+});
+
    handleRedirection("Assistance", "dashboard.html");
 });
 

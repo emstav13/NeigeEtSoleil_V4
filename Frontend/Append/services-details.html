@@ -1,128 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
   <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Services Details</title>
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-  <link href="assets/css/main.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service en préparation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .message {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .message h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .message p {
+      font-size: 1.2em;
+      color: #34495e;
+    }
+  </style>
 </head>
 
-<body class="services-details-page">
-
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-      <a href="index.html" class="logo d-flex align-items-center">
-        <h1 class="sitename">Append</h1><span>.</span>
-      </a>
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="index.html#hero">Home</a></li>
-          <li><a href="index.html#about">About</a></li>
-          <li><a href="index.html#services">Services</a></li>
-          <li><a href="index.html#contact">Contact</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>
-    </div>
-  </header>
-
-  <main class="main">
-    <div class="page-title" data-aos="fade">
-      <div class="heading">
-        <div class="container text-center">
-          <h1 id="serviceTitle">Chargement...</h1>
-          <p id="serviceDescription">Veuillez patienter pendant le chargement du service.</p>
-        </div>
-      </div>
-    </div>
-
-    <section id="service-details" class="service-details section">
-      <div class="container">
-        <div class="row gy-5">
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-            <div class="service-box">
-              <h4>Services List</h4>
-              <div class="services-list">
-                <a href="services-details.html?id=1"><i class="bi bi-arrow-right-circle"></i><span>Web Design</span></a>
-                <a href="services-details.html?id=2"><i class="bi bi-arrow-right-circle"></i><span>Product Management</span></a>
-                <a href="services-details.html?id=3"><i class="bi bi-arrow-right-circle"></i><span>Graphic Design</span></a>
-              </div>
-            </div>
-            <div class="help-box d-flex flex-column align-items-center">
-              <i class="bi bi-headset help-icon"></i>
-              <h4>Need Help?</h4>
-              <p><i class="bi bi-telephone"></i> +1 5589 55488 55</p>
-              <p><i class="bi bi-envelope"></i> contact@example.com</p>
-            </div>
-          </div>
-
-          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
-            <img src="assets/img/services.jpg" alt="" class="img-fluid services-img">
-            <h3>Plus de détails</h3>
-            <ul>
-              <li><i class="bi bi-check-circle"></i> <span>Point fort 1 du service</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Point fort 2 du service</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Point fort 3 du service</span></li>
-            </ul>
-            <p>Cette section peut contenir d'autres informations statiques ou dynamiques sur le service sélectionné.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer id="footer" class="footer">
-    <div class="container text-center mt-4">
-      <p>&copy; <strong>Append</strong> - Tous droits réservés</p>
-    </div>
-  </footer>
-
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
-    <i class="bi bi-arrow-up-short"></i>
-  </a>
-  <div id="preloader"></div>
-
-  <!-- Vendor JS -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-
-  <!-- Main JS -->
-  <script src="assets/js/main.js"></script>
-
-  <!-- Dynamic JS -->
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const serviceId = urlParams.get("id");
-
-      if (!serviceId) {
-        document.getElementById("serviceTitle").textContent = "Service non trouvé";
-        document.getElementById("serviceDescription").textContent = "Aucun ID fourni dans l'URL.";
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:3000/NeigeEtSoleil_V4/services/${serviceId}`);
-        if (!response.ok) throw new Error("Service introuvable");
-
-        const service = await response.json();
-        document.getElementById("serviceTitle").textContent = service.nom;
-        document.getElementById("serviceDescription").textContent = service.description;
-      } catch (error) {
-        console.error("Erreur :", error);
-        document.getElementById("serviceTitle").textContent = "Erreur de chargement";
-        document.getElementById("serviceDescription").textContent = error.message;
-      }
-    });
-  </script>
+<body>
+  <div class="message">
+    <h1>Service en préparation</h1>
+    <p>Ce service sera disponible pour la prochaine saison.<br>
+    Merci de votre patience !</p>
+  </div>
 </body>
 
 </html>
