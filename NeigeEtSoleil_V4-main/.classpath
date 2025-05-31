@@ -1,0 +1,32 @@
+<classpath>
+    <!-- JDK version utilisée -->
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21">
+        <attributes>
+            <attribute name="module" value="true"/>
+        </attributes>
+    </classpathentry>
+
+    <!-- Dossier source principal -->
+    <classpathentry kind="src" path="backend/src"/>
+
+    <!-- Dépendance MySQL -->
+    <classpathentry exported="true" kind="lib" path="C:/Users/nabil/workspace/mysql-connector-java-8.0.30/mysql-connector-java-8.0.30/mysql-connector-java-8.0.30.jar"/>
+
+    <!-- Dépendance Tomcat Embed Core -->
+    <classpathentry exported="true" kind="lib" path="C:/Users/nabil/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.8/tomcat-embed-core-10.1.8.jar" 
+                     sourcepath="C:/Users/nabil/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.8/tomcat-embed-core-10.1.8-sources.jar">
+        <attributes>
+            <attribute name="maven.pomderived" value="true"/>
+            <attribute name="maven.groupId" value="org.apache.tomcat.embed"/>
+            <attribute name="maven.artifactId" value="tomcat-embed-core"/>
+            <attribute name="maven.version" value="10.1.8"/>
+            <attribute name="maven.scope" value="compile"/>
+        </attributes>
+    </classpathentry>
+
+    <!-- Dépendance Jakarta Servlet -->
+    <classpathentry exported="true" kind="lib" path="C:/Users/nabil/workspace/NeigeEtSoleil_V4/backend/lib/jakarta.servlet-api-6.0.0.jar"/>
+
+    <!-- Dossier de sortie des fichiers compilés -->
+    <classpathentry kind="output" path="backend/bin"/>
+</classpath>
