@@ -31,16 +31,8 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html">Tableau de bord</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="mes-logements.html">Mes Logements</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="add-habitation.html">Ajouter</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-outline-light px-3" href="logout.html">Déconnexion</a>
+                        <a class="nav-link" href="#mesLogementsSection">Mes Logements</a>
+
                     </li>
                 </ul>
             </div>
@@ -56,7 +48,7 @@
             <input type="hidden" id="idProprietaire" name="idProprietaire" value="">
 
             <div class="mb-3">
-                <label for="nomImmeuble" class="form-label">Nom de l'immeuble :</label>
+                <label for="nomImmeuble" class="form-label">Nom de la résidence :</label>
                 <input type="text" class="form-control" id="nomImmeuble" name="nomImmeuble" required>
             </div>
 
@@ -112,6 +104,21 @@
             </form>
         </main>
         
+        <!-- 📌 AFFICHAGE DES LOGEMENTS DU PROPRIÉTAIRE -->
+        <section id="mesLogementsSection" class="container my-5">
+            <h2 class="text-center text-primary mb-4">📋 Mes Logements</h2>
+        
+
+    <!-- Conteneur où les logements seront affichés dynamiquement -->
+    <div id="mesLogementsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- Les logements seront injectés ici via JavaScript -->
+    </div>
+
+    <!-- Message si aucun logement trouvé -->
+    <div id="noLogementsMessage" class="alert alert-warning text-center" style="display: none;">
+        Vous n'avez ajouté aucun logement pour l'instant.
+    </div>
+</section>
         <!-- Footer -->
         <footer class="footer bg-dark text-white text-center py-4 mt-5">
             <div class="container">
