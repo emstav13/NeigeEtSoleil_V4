@@ -1,0 +1,9 @@
+# Ignorer le fichier d’environnement
+Backend/src/.env
+
+# Ignorer le script de hachage des mots de passe
+Backend/src/utils/hashPasswords.js
+
+# Autres fichiers ou dossiers sensibles / inutiles
+node_modules/
+

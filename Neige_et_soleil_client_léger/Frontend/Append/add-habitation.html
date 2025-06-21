@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter une Habitation | Neige & Soleil</title>
+    <!-- AOS CSS -->
+    <link rel="stylesheet" href="assets/vendor/aos/aos.css">
+    <!-- GLightbox CSS -->
+    <link rel="stylesheet" href="assets/vendor/glightbox/css/glightbox.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+    <!-- FontAwesome (pour les icônes) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-snowflake"></i> Neige & Soleil
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#mesLogementsSection">Mes Logements</a>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <h2 class="text-center text-primary mb-4">Ajouter une Habitation</h2>
+
+        <form id="addHabitationForm" enctype="multipart/form-data"
+            class="needs-validation p-4 shadow-lg rounded bg-light" novalidate>
+            <input type="hidden" id="idProprietaire" name="idProprietaire" value="">
+
+            <div class="mb-3">
+                <label for="nomImmeuble" class="form-label">Nom de la résidence :</label>
+                <input type="text" class="form-control" id="nomImmeuble" name="nomImmeuble" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="adresse" class="form-label">Adresse :</label>
+                <input type="text" class="form-control" id="adresse" name="adresse" required> </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="codePostal" class="form-label">Code Postal :</label>
+                        <input type="text" class="form-control" id="codePostal" name="codePostal" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="ville" class="form-label">Ville :</label>
+                        <input type="text" class="form-control" id="ville" name="ville" required>
+                    </div>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="typeLogement" class="form-label">Type de logement :</label>
+                    <select id="typeLogement" name="typeLogement" class="form-select" required>
+                        <option value="F1">F1</option>
+                        <option value="F2">F2</option>
+                        <option value="F3">F3</option>
+                        <option value="F4">F4</option>
+                        <option value="F5">F5</option>
+                    </select>
+                </div>
+        
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="surfaceHabitable" class="form-label">Surface Habitable (m²) :</label>
+                        <input type="number" class="form-control" id="surfaceHabitable" name="surfaceHabitable" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="capaciteAccueil" class="form-label">Capacité d'Accueil :</label>
+                        <input type="number" class="form-control" id="capaciteAccueil" name="capaciteAccueil" required>
+                    </div>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="specifite" class="form-label">Spécificité :</label>
+                    <textarea id="specifite" name="specifite" class="form-control" rows="3"></textarea>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="photo" class="form-label">Photo :</label>
+                    <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                </div>
+        
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-4 py-2">Ajouter</button>
+                </div>
+            </form>
+        </main>
+        
+        <!-- 📌 AFFICHAGE DES LOGEMENTS DU PROPRIÉTAIRE -->
+        <section id="mesLogementsSection" class="container my-5">
+            <h2 class="text-center text-primary mb-4">📋 Mes Logements</h2>
+        
+
+    <!-- Conteneur où les logements seront affichés dynamiquement -->
+    <div id="mesLogementsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- Les logements seront injectés ici via JavaScript -->
+    </div>
+
+    <!-- Message si aucun logement trouvé -->
+    <div id="noLogementsMessage" class="alert alert-warning text-center" style="display: none;">
+        Vous n'avez ajouté aucun logement pour l'instant.
+    </div>
+</section>
+        <!-- Footer -->
+        <footer class="footer bg-dark text-white text-center py-4 mt-5">
+            <div class="container">
+                <p class="mb-2">© 2025 Neige & Soleil - Tous droits réservés</p>
+                <div>
+                    <a href="https://www.facebook.com" class="text-white me-3" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.twitter.com" class="text-white me-3" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.instagram.com" class="text-white" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </footer>
+        
+        <!-- Scripts -->
+        <script src="assets/vendor/aos/aos.js"></script>
+        <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+        <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/vendor/purecounter/purecounter_vanilla.js" defer></script>
+        <script src="assets/js/main.js" defer></script>
+        

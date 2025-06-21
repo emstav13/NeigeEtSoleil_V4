@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration des Activités - Neige & Soleil</title>
+    
+    <!-- Bootstrap & CSS -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="assets/css/main.css" rel="stylesheet">
+</head>
+<body>
+   <!-- NAVBAR -->
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Neige & Soleil</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logements_admin.html">Gestion des Logements</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="activites_admin.html">Gestion des Activités</a>
+                </li>
+            </ul>
+            <span class="navbar-text">
+                Admin | <a href="logout.html" class="text-light">Déconnexion</a>
+            </span>
+        </div>
+    </div>
+</nav>
+    
+    <main class="container mt-4">
+        <!-- 🔎 Barre de recherche -->
+        <input type="text" id="searchActivity" class="form-control mb-3" placeholder="🔍 Rechercher une activité...">
+
+        <!-- 📝 Bouton Ajouter une activité -->
+        <button id="ajouterActivite" class="btn btn-primary mb-3">➕ Ajouter une activité</button>
+
+        <!-- 📊 Tableau des activités -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Type</th>
+                    <th>Station</th>
+                    <th>Prix (€)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="activitesTable">
+                <!-- Données dynamiques injectées par admin.js -->
+            </tbody>
+        </table>
+    </main>
+
+    <!-- 📌 Modal pour ajouter/modifier une activité -->
+    <div class="modal fade" id="editActiviteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier une activité</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editActiviteForm">
+                        <input type="hidden" id="editIdActivite">
+
+                        <div class="mb-3">
+                            <label for="editNomActivite" class="form-label">Nom de l'activité</label>
+                            <input type="text" id="editNomActivite" class="form-control" required>
+                        </div>
+                        <label for="editStation" class="form-label">Sélectionner une station</label>
+                        <select id="editStation" class="form-control" required>
+                            <option value="">-- Sélectionner une station --</option>
+                            <option value="1">Chamonix-Mont-Blanc</option>
+                            <option value="2">Val Thorens</option>
+                            <option value="3">Tignes</option>
+                            <option value="4">Courchevel</option>
+                            <option value="5">Les Deux Alpes</option>
+                            <option value="6">Alpe d’Huez</option>
+                            <option value="7">La Plagne</option>
+                            <option value="8">Méribel</option>
+                            <option value="9">Avoriaz</option>
+                            <option value="10">Serre Chevalier</option>
+                        </select>
+                        
+
+                        <div class="mb-3">
+                            <label for="editPrix" class="form-label">Prix (€)</label>
+                            <input type="number" id="editPrix" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editTypeActivite" class="form-label">Type d'activité</label>
+                            <select id="editTypeActivite" class="form-control">
+                                <option value="sportive">Sportive</option>
+                                <option value="culturelle">Culturelle</option>
+                                <option value="detente">Détente</option>
+                            </select>
+                        </div>
+                        
+                        <div id="specificFields"></div> <!-- 🎯 Zone dynamique pour afficher les champs selon le type -->
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">✅ Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer text-center mt-5 py-3 bg-dark text-light">
+        <p>&copy; 2025 Neige & Soleil - Tous droits réservés</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/aos/aos.js"></script>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>

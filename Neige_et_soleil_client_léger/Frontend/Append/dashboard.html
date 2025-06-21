@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Neige et Soleil</title>
+  <link rel="icon" href="data:,">
+
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="d-flex justify-content-end mb-4">
+    <a href="index.html" class="btn btn-primary">
+      <i class="bi bi-house-door-fill"></i> Retour à l'accueil
+    </a>
+  </div>
+  
+  <div class="container my-5">
+    <h1 class="text-center mb-4">Tableau de Bord - Neige et Soleil</h1>
+    
+    <!-- Statistiques Globales -->
+    <div class="row mb-4">
+      <!-- Réservations Totales -->
+      <div class="col-md-3">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title">Réservations (Hébergements)</h5>
+            <p class="card-text" id="totalReservations">0</p>
+          </div>
+        </div>
+      </div>
+      <!-- Logements Totaux -->
+      <div class="col-md-3">
+        <div class="card text-white bg-success">
+          <div class="card-body">
+            <h5 class="card-title">Nos Hébergements</h5>
+            <p class="card-text" id="totalLogements">0</p>
+          </div>
+        </div>
+      </div>
+      <!-- Activités Totales -->
+      <div class="col-md-3">
+        <div class="card text-white bg-warning">
+          <div class="card-body">
+            <h5 class="card-title">Activités Proposés</h5>
+            <p class="card-text" id="totalActivites">0</p>
+          </div>
+        </div>
+      </div>
+      <!-- Revenu Total -->
+      <div class="col-md-3">
+        <div class="card text-white bg-danger">
+          <div class="card-body">
+            <h5 class="card-title">Revenu Total (€)</h5>
+            <p class="card-text" id="revenuTotal">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Réservations par Mois</div>
+          <div class="card-body">
+            <canvas id="chartReservationsMois"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Revenus par Station</div>
+          <div class="card-body">
+            <canvas id="chartRevenusStation"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Activités les Plus Populaires</div>
+          <div class="card-body">
+            <canvas id="chartActivitesPopulaires"></canvas>
+          </div>
+        </div>
+      </div>
+     
+    </div>
+
+    <!-- Tableaux -->
+    <div class="row mt-5">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">Top 5 des Clients</div>
+          <div class="card-body">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nom</th>
+                  <th>Prénom</th>
+                  <th>Email</th>
+                  <th>Nombre de Réservations</th>
+                </tr>
+              </thead>
+              <tbody id="topClients">
+                <tr>
+                  <td colspan="5" class="text-center">Chargement...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin.js" defer></script>
+  
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      gererDashboardAdmin();
+    });
+  </script>
+</body>
+</html>

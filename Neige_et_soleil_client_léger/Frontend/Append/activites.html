@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nos Activités - Neige & Soleil</title>
+    
+    <!-- Bootstrap & CSS -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="assets/css/main.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header py-3 bg-dark text-light text-center">
+       
+       
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html">Neige & Soleil</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="disponibilites.html">Disponibilités</a></li>
+                        <li class="nav-item"><a class="nav-link active " aria-current="page" href="#">Activités</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <h1>Nos Activités</h1>
+    </header>
+    
+    <main class="container mt-4">
+        <!-- Activités Sportives -->
+        <section>
+            <h2 class="text-primary">🏅 Activités Sportives</h2>
+            <div id="sportContainer" class="row g-4"></div>
+        </section>
+
+        <!-- Activités Culturelles -->
+        <section class="mt-5">
+            <h2 class="text-danger">🎭 Activités Culturelles</h2>
+            <div id="culturelleContainer" class="row g-4"></div>
+        </section>
+
+        <!-- Activités de Détente -->
+        <section class="mt-5">
+            <h2 class="text-success">🧘 Activités de Détente</h2>
+            <div id="detenteContainer" class="row g-4"></div>
+        </section>
+
+        <section class="mt-5">
+          <h2 class="text-warning">📅 Mes Réservations d'Activités</h2>
+          <div id="reservationsContainer" class="row g-4"></div>
+        </section>
+        
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer text-center mt-5 py-3 bg-dark text-light">
+        <p>&copy; 2025 Neige & Soleil - Tous droits réservés</p>
+    </footer>
+    
+    <!-- Modal pour Réserver une Activité -->
+<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reservationModalLabel">Réservation d'Activité</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <form id="reservationForm">
+            <div class="mb-3">
+              <label for="reservationDate" class="form-label">Date de Réservation</label>
+              <input type="date" class="form-control" id="reservationDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="prixParPersonne" class="form-label">Prix par personne (€)</label>
+                <input type="text" class="form-control" id="prixParPersonne" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="nombrePersonnes" class="form-label">Nombre de personnes</label>
+                <input type="number" class="form-control" id="nombrePersonnes" min="1" value="1" required>
+              </div>
+              <div class="mb-3">
+                <label for="prixTotal" class="form-label">Prix total (€)</label>
+                <input type="text" class="form-control" id="prixTotal" readonly>
+              </div>
+              
+            <button type="submit" class="btn btn-primary">Confirmer la Réservation</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    <!-- Scripts -->
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/aos/aos.js"></script>
+    <script src="assets/js/main.js" defer></script>
+</body>
+</html>

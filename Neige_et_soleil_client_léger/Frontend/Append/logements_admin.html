@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Logements - Admin</title>
+   
+<link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+<body data-page="logements">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Neige & Soleil</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="logements_admin.html">Gestion des Logements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="activites_admin.html">Gestion des Activités</a>
+                    </li>
+                </ul>
+                <span class="navbar-text">
+                    Admin | <a href="logout.html" class="text-light">Déconnexion</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Gestion des Logements</h2>
+        <button class="btn btn-success mb-3" id="ajouterLogement">➕ Ajouter un logement</button>
+
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom Immeuble</th>
+                    <th>Adresse</th>
+                    <th>Ville</th>
+                    <th>Type</th>
+                    <th>Surface</th>
+                    <th>Capacité</th>
+                    <th>Propriétaire</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="logementsTable">
+                <!-- Contenu injecté dynamiquement -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2025 Neige & Soleil - Tous droits réservés</p>
+    </footer>
+
+    
+     <!-- MODAL DE MODIFICATION -->
+<div class="modal fade" id="editLogementModal" tabindex="-1" aria-labelledby="editLogementModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editLogementModalLabel">Modifier le Logement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editLogementForm">
+          <input type="hidden" id="editIdLogement">
+          <div class="mb-3">
+            <label class="form-label">Nom de l'Immeuble</label>
+            <input type="text" class="form-control" id="editNomImmeuble" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <input type="text" class="form-control" id="editAdresse" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Code Postal</label>
+            <input type="text" class="form-control" id="editCodePostal" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ville</label>
+            <input type="text" class="form-control" id="editVille" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select class="form-control" id="editTypeLogement">
+              <option value="F1">F1</option>
+              <option value="F2">F2</option>
+              <option value="F3">F3</option>
+              <option value="F4">F4</option>
+              <option value="F5">F5</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Surface</label>
+            <input type="number" class="form-control" id="editSurface" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Capacité d'Accueil</label>
+            <input type="number" class="form-control" id="editCapacite" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Spécificité</label>
+            <input type="text" class="form-control" id="editSpecifite">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Sauvegarder</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+        <!-- MODAL D'AJOUT -->
+<div class="modal fade" id="addLogementModal" tabindex="-1" aria-labelledby="addLogementModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addLogementModalLabel">Ajouter un Logement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addLogementForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Propriétaire</label>
+            <select id="selectProprietaire" name="idProprietaire" class="form-select">
+              <option value="">Sélectionner un propriétaire</option>
+              <option value="1">Propriétaire 1</option>
+              <option value="2">Propriétaire 2</option>
+            </select>
+          </div>
+        
+          <div class="mb-3">
+            <label class="form-label">Nom de l'Immeuble</label>
+            <input type="text" class="form-control" id="addNomImmeuble" name="nomImmeuble" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <input type="text" class="form-control" id="addAdresse" name="adresse" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Code Postal</label>
+            <input type="text" class="form-control" id="addCodePostal" name="codePostal" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Ville</label>
+            <input type="text" class="form-control" id="addVille" name="ville" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select class="form-control" id="addTypeLogement" name="typeLogement">
+              <option value="F1">F1</option>
+              <option value="F2">F2</option>
+              <option value="F3">F3</option>
+              <option value="F4">F4</option>
+              <option value="F5">F5</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Surface</label>
+            <input type="number" class="form-control" id="addSurface" name="surfaceHabitable" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Capacité d'Accueil</label>
+            <input type="number" class="form-control" id="addCapacite" name="capaciteAccueil" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Spécifité</label>
+            <input type="text" class="form-control" id="addSpecifite" name="specifite" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Photo</label>
+            <input type="file" class="form-control" id="addPhoto" name="photo" required>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- SCRIPTS -->
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script defer src="assets/js/admin.js"></script>
+
+</body>
+</html>

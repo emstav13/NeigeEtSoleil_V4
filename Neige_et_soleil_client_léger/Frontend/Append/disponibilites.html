@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilités</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+<body>
+    <!-- 🌟 Barre de navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">Neige & Soleil</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Disponibilités</a></li>
+                    <li class="nav-item"><a class="nav-link " aria-current="page" href="activites.html">Activités</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 🌟 Contenu principal -->
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">🔍 Recherche de Logements Disponibles</h1>
+
+        <!-- 🔎 Formulaire de recherche -->
+        <form id="searchForm" class="row g-3">
+            <div class="col-md-4">
+                <label for="ville" class="form-label">Ville</label>
+                <input type="text" class="form-control" id="ville" name="ville" placeholder="Ex: Paris">
+            </div>
+            <div class="col-md-4">
+                <label for="dateDebut" class="form-label">Date Début</label>
+                <input type="date" class="form-control" id="dateDebut" name="dateDebut">
+            </div>
+            <div class="col-md-4">
+                <label for="dateFin" class="form-label">Date Fin</label>
+                <input type="date" class="form-control" id="dateFin" name="dateFin">
+            </div>
+            <div class="col-md-3">
+                <label for="prixMin" class="form-label">Prix Minimum (€)</label>
+                <input type="number" class="form-control" id="prixMin" name="prixMin">
+            </div>
+            <div class="col-md-3">
+                <label for="prixMax" class="form-label">Prix Maximum (€)</label>
+                <input type="number" class="form-control" id="prixMax" name="prixMax">
+            </div>
+            <div class="col-md-3">
+                <label for="capaciteAccueil" class="form-label">Capacité d'Accueil</label>
+                <input type="number" class="form-control" id="capaciteAccueil" name="capaciteAccueil">
+            </div>
+            <div class="col-md-3">
+                <label for="type_logement" class="form-label">Type de Logement</label>
+                <select class="form-select" id="type_logement" name="type_logement">
+                    <option value="">Choisir</option>
+                    <option value="F1">F1</option>
+                    <option value="F2">F2</option>
+                    <option value="F3">F3</option>
+                    <option value="F4">F4</option>
+                    <option value="F5">F5</option>
+                </select>
+            </div>
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+        </form>
+
+        <!-- 📌 Affichage des résultats -->
+        <div id="results" class="mt-5">
+            <h2 class="mb-4">📋 Résultats de la Recherche</h2>
+            <div class="row" id="logementCards">
+                <!-- Les résultats seront affichés ici sous forme de cartes Bootstrap -->
+            </div>
+        </div>
+
+        <!-- 📌 Bouton pour récupérer les réservations de l'utilisateur -->
+        <div class="text-center mt-5">
+            <button id="btnMesReservations" class="btn btn-info">🔍 Voir Mes Réservations</button>
+        </div>
+
+        <!-- 📌 Affichage des réservations -->
+        <div id="reservationsContainer" class="mt-4">
+            <h2>📅 Mes Réservations</h2>
+            <div id="reservationList" class="list-group">
+                <!-- Les réservations de l'utilisateur seront affichées ici -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌟 Footer -->
+    <footer class="bg-dark text-light mt-5 py-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Neige & Soleil</h5>
+                    <p>Location de logements à la montagne. Profitez de vacances inoubliables dans les plus belles stations.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Liens Utiles</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-light">Accueil</a></li>
+                        <li><a href="#" class="text-light">Disponibilités</a></li>
+                        <li><a href="reservations.html" class="text-light">Mes Réservations</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact</h5>
+                    <p>Email : contact@neige-soleil.com</p>
+                    <p>Téléphone : +33 1 23 45 67 89</p>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <p>&copy; 2025 Neige & Soleil. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- 📌 MODALE DE RÉSERVATION -->
+<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reservationModalLabel">Confirmation de Réservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <form id="reservationForm">
+          <!-- 🔹 Informations du client -->
+          <input type="hidden" id="modalLogementId">
+
+          <div class="mb-3">
+            <label for="modalNom" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="modalNom" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="modalPrenom" class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="modalPrenom" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="modalEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="modalEmail" >
+          </div>
+
+          <!-- 🔹 Dates de réservation -->
+          <div class="mb-3">
+            <label for="modalDateDebut" class="form-label">Date Début</label>
+            <input type="date" class="form-control" id="modalDateDebut" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="modalDateFin" class="form-label">Date Fin</label>
+            <input type="date" class="form-control" id="modalDateFin" readonly>
+          </div>
+
+          <!-- 🔹 Prix total calculé -->
+          <div class="mb-3">
+            <label for="modalPrixTotal" class="form-label">Prix Total (€)</label>
+            <input type="text" id="prixTotal" class="form-control" readonly>
+
+          </div>
+
+          <!-- 🔹 Bouton de confirmation -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" id="modalConfirmerReservation">Confirmer la Réservation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
